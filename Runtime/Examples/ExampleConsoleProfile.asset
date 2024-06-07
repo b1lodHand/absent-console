@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb940c2288e52d4299dbefc9710f809, type: 3}
+  m_Name: ExampleConsoleProfile
+  m_EditorClassIdentifier: 
+  m_commands:
+  - m_keyword: help
+    m_arguments: []
+    m_description: Displays generic info about commands.
+    m_methodPreview: Help()
+    m_isExpanded: 0
+  - m_keyword: help
+    m_arguments:
+    - m_name: command_name
+      m_valueType: 2
+    m_description: Shows the description for the command wanted.
+    m_methodPreview: Help(String commandName)
+    m_isExpanded: 0
+  - m_keyword: help
+    m_arguments:
+    - m_name: id
+      m_valueType: 0
+    m_description: Shows the description for the item with the target id.
+    m_methodPreview: Help(Int32 id)
+    m_isExpanded: 0
+  - m_keyword: log
+    m_arguments:
+    - m_name: text
+      m_valueType: 2
+    m_description: Logs a text into the console window.
+    m_methodPreview: no_methods_selected()
+    m_isExpanded: 0
+  - m_keyword: teleport
+    m_arguments:
+    - m_name: x
+      m_valueType: 1
+    - m_name: y
+      m_valueType: 1
+    - m_name: z
+      m_valueType: 1
+    m_description: Teleports to target coordinates.
+    m_methodPreview: 
+    m_isExpanded: 0
+  - m_keyword: load
+    m_arguments:
+    - m_name: level_name
+      m_valueType: 2
+    m_description: Loads a level.
+    m_methodPreview: 
+    m_isExpanded: 0
+  - m_keyword: god
+    m_arguments: []
+    m_description: Switches the god mode.
+    m_methodPreview: GodModeSwitch()
+    m_isExpanded: 0
+  - m_keyword: god
+    m_arguments:
+    - m_name: on/off
+      m_valueType: 5
+    m_description: Sets the god mode state depending on input.
+    m_methodPreview: GodMode(Boolean state)
+    m_isExpanded: 0
+  - m_keyword: connect
+    m_arguments:
+    - m_name: ip_address
+      m_valueType: 5
+    m_description: Connects to target ip.
+    m_methodPreview: no_methods_selected()
+    m_isExpanded: 0

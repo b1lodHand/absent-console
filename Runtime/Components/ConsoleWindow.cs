@@ -49,6 +49,11 @@ namespace com.absence.consolesystem
             m_instance = this;
             #endregion
 
+            Transform dontDestroyOnLoadTarget = transform;
+            while(dontDestroyOnLoadTarget.parent != null) dontDestroyOnLoadTarget = dontDestroyOnLoadTarget.parent;
+
+            DontDestroyOnLoad(dontDestroyOnLoadTarget.gameObject);
+
             CloseWindow(true);
             FetchCommands();
         }
