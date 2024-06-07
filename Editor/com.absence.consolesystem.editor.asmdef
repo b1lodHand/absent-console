@@ -1,0 +1,18 @@
+{
+    "name": "com.absence.consolesystem.editor",
+    "rootNamespace": "com.absence.consolesystem.editor",
+    "references": [
+        "GUID:706f01fa926211943b6e34f6af9d9419"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
