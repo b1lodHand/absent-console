@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace com.absence.consolesystem.editor
 {
+    /// <summary>
+    /// Custom editor for <see cref="ConsoleWindow"/>.
+    /// </summary>
     [CustomEditor(typeof(ConsoleWindow), false)]
     public class ConsoleWindowCustomEditor : Editor
     {

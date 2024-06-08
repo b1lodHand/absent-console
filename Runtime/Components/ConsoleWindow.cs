@@ -9,6 +9,9 @@ using UnityEngine.UI;
 
 namespace com.absence.consolesystem
 {
+    /// <summary>
+    /// The <b>singleton</b> component that takes place in the scene as a console window.
+    /// </summary>
     public class ConsoleWindow : MonoBehaviour
     {
         #region Singleton

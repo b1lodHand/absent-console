@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace com.absence.consolesystem.editor
 {
+    /// <summary>
+    /// Custom property drawer for <see cref="Command"/>.
+    /// </summary>
     [CustomPropertyDrawer(typeof(Command))]
     public class CommandPropertyDrawer : PropertyDrawer
     {
@@ -82,7 +85,7 @@ namespace com.absence.consolesystem.editor
 
             void DrawMethodSelector()
             {
-                List<MethodInfo> suitableMethods = ConsoleEventDatabase.GetSuitableMethodsForCommand(command);
+                List<MethodInfo> suitableMethods = ConsoleEventHandler.GetSuitableMethodsForCommand(command);
 
                 if (suitableMethods.Count == 0)
                 {
@@ -91,7 +94,7 @@ namespace com.absence.consolesystem.editor
                     return;
                 }
 
-                List<string> suitablePreviews = suitableMethods.ConvertAll(method => ConsoleEventDatabase.GenerateMethodPreview(method));
+                List<string> suitablePreviews = suitableMethods.ConvertAll(method => ConsoleEventHandler.GenerateMethodPreview(method));
 
                 string selectedMethodPreview = methodPreviewProp.stringValue;
                 int methodIndex = 0;

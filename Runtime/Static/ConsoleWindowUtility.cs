@@ -2,6 +2,9 @@ using System.Text;
 
 namespace com.absence.consolesystem.internals
 {
+    /// <summary>
+    /// The static class which contains some helper functions for console window.
+    /// </summary>
     public static class ConsoleWindowUtility
     {
         const string k_boolParamColor = "#4d94ff";

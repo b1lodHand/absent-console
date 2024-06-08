@@ -1,9 +1,13 @@
+using com.absence.consolesystem.internals;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace com.absence.consolesystem
 {
+    /// <summary>
+    /// The scriptable object responsible for holding commands.
+    /// </summary>
     [CreateAssetMenu(menuName = "absencee_/Console Profile", fileName = "New Console Profile")]
     public class ConsoleProfile : ScriptableObject
     {

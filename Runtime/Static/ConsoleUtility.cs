@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace com.absence.consolesystem.internals
 {
+    /// <summary>
+    /// The static class which contains some helper functions for console system.
+    /// </summary>
     public static class ConsoleUtility
     {
         public const string INPUT_ON_LC = "on";
@@ -12,11 +15,11 @@ namespace com.absence.consolesystem.internals
         {
             string methodPreview = command.MethodPreview;
 
-            if (!ConsoleEventDatabase.PreviewsOfMethodsInBuild.Contains(methodPreview)) return false;
+            if (!ConsoleEventHandler.PreviewsOfMethodsInBuild.Contains(methodPreview)) return false;
 
             try
             {
-                MethodInfo targetMethod = ConsoleEventDatabase.MethodsInBuild[ConsoleEventDatabase.PreviewsOfMethodsInBuild.IndexOf(methodPreview)];
+                MethodInfo targetMethod = ConsoleEventHandler.MethodsInBuild[ConsoleEventHandler.PreviewsOfMethodsInBuild.IndexOf(methodPreview)];
                 if (command.Arguments.Count > 0) targetMethod.Invoke(null, args);
                 else targetMethod.Invoke(null, null);
 

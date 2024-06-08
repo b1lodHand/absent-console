@@ -3,18 +3,21 @@ using UnityEditor;
 
 namespace com.absence.consolesystem.editor
 {
+    /// <summary>
+    /// The static class responsible for managing the editor-side tasks of the console system.
+    /// </summary>
     [InitializeOnLoad]
     internal static class ConsoleEditorJobsHelper
     {
         static ConsoleEditorJobsHelper()
         {
-            ConsoleEventDatabase.RefreshMethods(true);
+            ConsoleEventHandler.RefreshMethods(true);
         }
 
         [MenuItem("absencee_/absent-console/Refresh Methods")]
         static void RefreshMethods()
         {
-            ConsoleEventDatabase.RefreshMethods(true);
+            ConsoleEventHandler.RefreshMethods(true);
         }
     }
 

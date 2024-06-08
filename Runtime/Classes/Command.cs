@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace com.absence.consolesystem
+namespace com.absence.consolesystem.internals
 {
+    /// <summary>
+    /// Class containing the needed information of a command.
+    /// </summary>
     [System.Serializable]
     public class Command
     {
