@@ -65,7 +65,7 @@ namespace com.absence.consolesystem.internals
             if (string.IsNullOrWhiteSpace(command.MethodPreview)) return sb.ToString();
 
             sb.Append("\n\n");
-            sb.Append($"Calls: '{nameof(ConsoleEventHandler)}.{command.MethodPreview}'");
+            sb.Append($"Calls: '{command.MethodPreview}'");
 
             return sb.ToString();
         }

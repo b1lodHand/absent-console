@@ -19,6 +19,8 @@ namespace com.absence.consolesystem
         [SerializeField] private ConsoleProfile m_profile;
         public ConsoleProfile Profile => m_profile;
 
+        [SerializeField] private KeyCode m_keyToOpen = KeyCode.Tab;
+
         private List<Command> m_commands = new();
 
         [Space(10)]
@@ -60,18 +62,19 @@ namespace com.absence.consolesystem
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Tab))
+            if (Input.GetKeyDown(m_keyToOpen))
             {
                 SwitchWindowVisibility();
             }
+
+            if (!m_open) return;
 
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 m_currentCommand = m_inputField.text;
                 RetrieveInput();
             }
-
-            if (Input.GetKeyDown(KeyCode.UpArrow) && m_open && EventSystem.current.currentSelectedGameObject == m_inputField.gameObject)
+            if (Input.GetKeyDown(KeyCode.UpArrow) && EventSystem.current.currentSelectedGameObject == m_inputField.gameObject)
             {
                 if (string.IsNullOrWhiteSpace(m_lastCommandInvoked)) return;
 
@@ -112,6 +115,8 @@ namespace com.absence.consolesystem
 
         private bool TryParseInput(string commandInput, out Command foundCommand, out object[] refinedArgs)
         {
+            commandInput = commandInput.Trim();
+
             foundCommand = null;
             refinedArgs = null;
 

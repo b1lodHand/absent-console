@@ -32,9 +32,25 @@ namespace com.absence.consolesystem.internals
             m_methodsInBuild = new();
             m_methodPreviews = new();
 
-            List<MethodInfo> temp = typeof(ConsoleEventHandler).GetMethods(METHOD_FLAGS).ToList();
-            temp = temp.Where(method => !method.IsGenericMethod).ToList();
-            temp = temp.Where(method => method.GetCustomAttributes(typeof(NotCommandMethod), false).Length == 0).ToList();
+            List<Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            List<Type> allTypes = new();
+            List<MethodInfo> temp = new();
+
+            assemblies.ForEach(asm =>
+            {
+                List<Type> localTypes = asm.GetTypes().Where(t => t.IsClass).ToList();
+                localTypes.ForEach(type => allTypes.Add(type));
+            });
+
+            allTypes.ForEach(type =>
+            {
+                List<MethodInfo> localMethods = type.GetMethods(METHOD_FLAGS).Where(method =>
+                {
+                    return (!method.IsGenericMethod) && (method.GetCustomAttributes(typeof(CommandAttribute), false).Length > 0);
+                }).ToList();
+
+                localMethods.ForEach(method => temp.Add(method));
+            });
 
             if (temp.Count == 0) return;
 
@@ -43,6 +59,11 @@ namespace com.absence.consolesystem.internals
 
             if (!debugMode) return;
 
+            Debug.Log(PrintMethodList());
+        }
+
+        public static string PrintMethodList()
+        {
             StringBuilder debugMessage = new();
 
             debugMessage.Append("<b>[CONSOLE]: Methods loaded:</b> ");
@@ -53,7 +74,7 @@ namespace com.absence.consolesystem.internals
                 debugMessage.Append(methodPreview);
             });
 
-            Debug.Log(debugMessage.ToString());
+            return debugMessage.ToString();
         }
 
         public static string GenerateMethodPreview(MethodInfo method)

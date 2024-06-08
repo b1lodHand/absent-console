@@ -670,6 +670,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_profile: {fileID: 11400000, guid: dc83b24399490424bb118323771b50c0, type: 2}
+  m_keyToOpen: 9
   m_panel: {fileID: 7575736089648365184}
   m_inputField: {fileID: 7578305880161114639}
   m_logText: {fileID: 7689138798927779173}

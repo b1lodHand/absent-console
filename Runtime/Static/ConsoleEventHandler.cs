@@ -4,15 +4,15 @@ using UnityEngine;
 
 namespace com.absence.consolesystem.internals
 {
-    /* Define logic for your commands here.*/
-    public static class ConsoleEventHandler
+    internal static class ConsoleEventHandler
     {
-        // It is recommended to remain this method as is. It is the default method for the commands without any method specified.
+        [Command]
         public static void no_methods_selected()
         {
             Console.Log("There are no methods selected for this command. ");
         }
 
+        [Command]
         static void Help()
         {
             List<Command> commandsAvailable = ConsoleWindow.Instance.Profile.Commands;
@@ -30,6 +30,7 @@ namespace com.absence.consolesystem.internals
             Console.Log(sb.ToString());
         }
 
+        [Command]
         static void Help(string commandName)
         {
             List<Command> commandsFound = ConsoleWindow.Instance.Profile.GetCommandsWithTheKeyword(commandName);
@@ -53,32 +54,10 @@ namespace com.absence.consolesystem.internals
             Console.Log(sb.ToString());
         }
 
-        [NotCommandMethod]
         static string Help_GenerateDesciption(Command command)
         {
             string description = ConsoleWindowUtility.WrapWithColorTag(command.Description, ConsoleWindowUtility.DESCRIPTION_COLOR);
             return $"{ConsoleWindowUtility.GeneratePreviewForCommand(command, true)}: {description}";
-        }
-
-        static void Help(int id)
-        {
-            Console.Log($"ID of this member is: {id}");
-        }
-
-        static void GodModeSwitch()
-        {
-            Debug.Log("god mode switched.");
-        }
-
-        static void GodModeSwitch2()
-        {
-            Debug.Log("god mode switched.");
-        }
-
-        static void GodMode(bool state)
-        {
-            if (state) Debug.Log("god mode on");
-            else Debug.Log("god mode off");
         }
     }
 }
