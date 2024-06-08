@@ -12,6 +12,8 @@ namespace com.absence.consolesystem
     /// <summary>
     /// The <b>singleton</b> component that takes place in the scene as a console window.
     /// </summary>
+    [DisallowMultipleComponent]
+    [AddComponentMenu("absencee_/absent-console/Console Window")]
     public class ConsoleWindow : MonoBehaviour
     {
         #region Singleton
@@ -21,8 +23,6 @@ namespace com.absence.consolesystem
 
         [SerializeField] private ConsoleProfile m_profile;
         public ConsoleProfile Profile => m_profile;
-
-        [SerializeField] private KeyCode m_keyToOpen = KeyCode.Tab;
 
         [SerializeField] private bool m_caseSensitive = false;
         public bool IsCaseSensitive => m_caseSensitive;
@@ -40,6 +40,8 @@ namespace com.absence.consolesystem
         [SerializeField] private ScrollRect m_scrollRect;
 
         private bool m_open = false;
+        public bool IsOpen => m_open;
+
         private string m_currentCommand;
         private string m_lastCommandInvoked;
 
@@ -67,30 +69,6 @@ namespace com.absence.consolesystem
             FetchCommands();
         }
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(m_keyToOpen))
-            {
-                SwitchWindowVisibility();
-            }
-
-            if (!m_open) return;
-
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                m_currentCommand = m_inputField.text;
-                RetrieveInput();
-            }
-            if (Input.GetKeyDown(KeyCode.UpArrow) && EventSystem.current.currentSelectedGameObject == m_inputField.gameObject)
-            {
-                if (string.IsNullOrWhiteSpace(m_lastCommandInvoked)) return;
-
-                m_inputField.text = m_lastCommandInvoked;
-
-                m_inputField.MoveTextEnd(false);
-            }
-        }
-
         private void FetchCommands()
         {
             Console.Log("Initializing console...", false);
@@ -100,27 +78,6 @@ namespace com.absence.consolesystem
             Console.Log("Done.", false);
             Console.LogWarning($"There are {m_commands.Count} commands found in the build.");
         }
-
-        private void RetrieveInput()
-        {
-            m_lastCommandInvoked = m_currentCommand;
-
-            if (!TryParseInput(m_currentCommand, out Command command, out object[] args))
-            {
-                m_currentCommand = string.Empty;
-                StartCoroutine(ClearInputField());
-                return;
-            }
-
-            if (!ConsoleUtility.InvokeCommand(command, args))
-            {
-                Console.LogError("Something went wrong while invoking the command.");
-            }
-
-            m_currentCommand = string.Empty;
-            StartCoroutine(ClearInputField());
-        }
-
         private bool TryParseInput(string commandInput, out Command foundCommand, out object[] refinedArgs)
         {
             commandInput = commandInput.Trim();
@@ -219,21 +176,6 @@ namespace com.absence.consolesystem
             return true;
         }
 
-        IEnumerator C_DisableHighlight()
-        {
-            Color originalTextColor = m_inputField.selectionColor;
-            originalTextColor.a = 0f;
-
-            m_inputField.selectionColor = originalTextColor;
-
-            yield return null;
-
-            m_inputField.MoveTextEnd(false);
-
-            originalTextColor.a = 1f;
-            m_inputField.selectionColor = originalTextColor;
-        }
-
         public void Write(string messageToWrite, bool extraLineBreak = true)
         {
             StringBuilder sb = new(m_logText.text);
@@ -247,7 +189,6 @@ namespace com.absence.consolesystem
             Canvas.ForceUpdateCanvases();
             m_scrollRect.verticalNormalizedPosition = 0f;
         }
-
         public List<Command> GetCommandsWithTheKeyword(string keyword)
         {
             keyword = keyword.Trim();
@@ -259,8 +200,7 @@ namespace com.absence.consolesystem
             }).ToList();
         }
 
-        #region Window
-        private void OpenWindow()
+        public void OpenWindow()
         {
             m_open = true;
 
@@ -268,8 +208,7 @@ namespace com.absence.consolesystem
 
             SelectInputField();
         }
-
-        private void CloseWindow(bool clearConsole)
+        public void CloseWindow(bool clearConsole)
         {
             m_open = false;
 
@@ -279,19 +218,46 @@ namespace com.absence.consolesystem
 
             m_panel.SetActive(false);
         }
-
-        private void SwitchWindowVisibility()
+        public void SwitchWindowVisibility()
         {
             if (m_open) CloseWindow(false);
             else OpenWindow();
         }
+        public void RetrieveEnterInput()
+        {
+            m_currentCommand = m_inputField.text;
+            m_lastCommandInvoked = m_currentCommand;
+
+            if (!TryParseInput(m_currentCommand, out Command command, out object[] args))
+            {
+                m_currentCommand = string.Empty;
+                StartCoroutine(ClearInputField());
+                return;
+            }
+
+            if (!ConsoleUtility.InvokeCommand(command, args))
+            {
+                Console.LogError("Something went wrong while invoking the command.");
+            }
+
+            m_currentCommand = string.Empty;
+            StartCoroutine(ClearInputField());
+        }
+        public void LoadLastCommand()
+        {
+            if (EventSystem.current.currentSelectedGameObject != m_inputField.gameObject) return;
+            if (string.IsNullOrWhiteSpace(m_lastCommandInvoked)) return;
+
+            m_inputField.text = m_lastCommandInvoked;
+            m_inputField.MoveTextEnd(false);
+        }
+
 
         private void SelectInputField()
         {
             m_inputField.Select();
             StartCoroutine(C_DisableHighlight());
         }
-
         private IEnumerator ClearInputField()
         {
             EventSystem.current.SetSelectedGameObject(null);
@@ -301,7 +267,20 @@ namespace com.absence.consolesystem
             m_inputField.text = string.Empty;
             SelectInputField();
         }
-        #endregion
+        private IEnumerator C_DisableHighlight()
+        {
+            Color originalTextColor = m_inputField.selectionColor;
+            originalTextColor.a = 0f;
+
+            m_inputField.selectionColor = originalTextColor;
+
+            yield return null;
+
+            m_inputField.MoveTextEnd(false);
+
+            originalTextColor.a = 1f;
+            m_inputField.selectionColor = originalTextColor;
+        }
 
     }
 }
