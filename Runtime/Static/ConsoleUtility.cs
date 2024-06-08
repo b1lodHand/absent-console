@@ -10,6 +10,8 @@ namespace com.absence.consolesystem.internals
     {
         public const string INPUT_ON_LC = "on";
         public const string INPUT_OFF_LC = "off";
+        
+        public static readonly char[] STRING_WRAPPER_CHARS = {'\'', '\"', '`'};
 
         public static bool InvokeCommand(Command command, object[] args)
         {
@@ -82,9 +84,19 @@ namespace com.absence.consolesystem.internals
         {
             input = input.Trim();
 
-            bool result = (input.StartsWith('"') && input.EndsWith('"'));
+            bool result = false;
+            char targetChar = ' ';
+            for (int i = 0; i < STRING_WRAPPER_CHARS.Length; i++)
+            {
+                char current = STRING_WRAPPER_CHARS[i];
+                if (input.StartsWith(current) && input.EndsWith(current))
+                {
+                    result = true;
+                    targetChar = current;
+                }
+            }
 
-            parsedString = input.Trim('"');
+            parsedString = input.Trim(targetChar);
 
             return result;
         }

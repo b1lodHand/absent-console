@@ -24,7 +24,11 @@ namespace com.absence.consolesystem
 
         [SerializeField] private KeyCode m_keyToOpen = KeyCode.Tab;
 
+        [SerializeField] private bool m_caseSensitive = false;
+        public bool IsCaseSensitive => m_caseSensitive;
+
         private List<Command> m_commands = new();
+        public List<Command> Commands => m_commands;
 
         [Space(10)]
 
@@ -93,7 +97,8 @@ namespace com.absence.consolesystem
 
             m_commands = new(m_profile.Commands);
 
-            Console.Log("Done.");
+            Console.Log("Done.", false);
+            Console.LogWarning($"There are {m_commands.Count} commands found in the build.");
         }
 
         private void RetrieveInput()
@@ -143,7 +148,7 @@ namespace com.absence.consolesystem
 
             string keyword = pieces[0];
 
-            List<Command> commandsWithSameKeyword = m_commands.Where(command => command.Keyword == keyword).ToList();
+            List<Command> commandsWithSameKeyword = GetCommandsWithTheKeyword(keyword);
 
             if (commandsWithSameKeyword.Count == 0)
             {
@@ -241,6 +246,17 @@ namespace com.absence.consolesystem
 
             Canvas.ForceUpdateCanvases();
             m_scrollRect.verticalNormalizedPosition = 0f;
+        }
+
+        public List<Command> GetCommandsWithTheKeyword(string keyword)
+        {
+            keyword = keyword.Trim();
+
+            return Commands.Where(command =>
+            {
+                if (m_caseSensitive) return keyword == command.Keyword;
+                else return keyword.ToLower() == command.Keyword.ToLower();
+            }).ToList();
         }
 
         #region Window

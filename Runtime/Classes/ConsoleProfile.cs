@@ -13,14 +13,7 @@ namespace com.absence.consolesystem
     {
         [SerializeField] private List<Command> m_commands = new();
 
-        public List<Command> Commands => m_commands;
-
-        public List<Command> GetCommandsWithTheKeyword(string keyword)
-        {
-            keyword = keyword.Trim();
-
-            return Commands.Where(command => command.Keyword == keyword).ToList();
-        }
+        public List<Command> Commands => m_commands;      
     }
 
 }

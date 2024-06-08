@@ -33,7 +33,7 @@ namespace com.absence.consolesystem.internals
         static void Help(string commandName)
         {
             commandName = commandName.Trim();
-            List<Command> commandsFound = ConsoleWindow.Instance.Profile.GetCommandsWithTheKeyword(commandName);
+            List<Command> commandsFound = ConsoleWindow.Instance.GetCommandsWithTheKeyword(commandName);
 
             if (commandsFound.Count == 0)
             {
