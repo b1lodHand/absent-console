@@ -12,7 +12,7 @@ namespace com.absence.consolesystem.internals
     /// </summary>
     public static class ConsoleEventHandler
     {
-        public const bool DEBUG_MODE = true;
+        public const bool DEBUG_MODE = false;
         const string DEFAULT_METHOD_NAME = nameof(ConsoleDefaultCommands.no_methods_selected);
         static MethodInfo DefaultMethod => MethodsInBuild.Where(method => method.Name == DEFAULT_METHOD_NAME).FirstOrDefault();
 
