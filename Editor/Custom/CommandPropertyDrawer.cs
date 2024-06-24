@@ -85,7 +85,7 @@ namespace com.absence.consolesystem.editor
 
             void DrawMethodSelector()
             {
-                List<MethodInfo> suitableMethods = ConsoleEventHandler.GetSuitableMethodsForCommand(command);
+                List<MethodInfo> suitableMethods = ConsoleEventDatabase.GetSuitableMethodsForCommand(command);
 
                 if (suitableMethods.Count == 0)
                 {
@@ -94,7 +94,7 @@ namespace com.absence.consolesystem.editor
                     return;
                 }
 
-                List<string> suitablePreviews = suitableMethods.ConvertAll(method => ConsoleEventHandler.GenerateMethodPreview(method));
+                List<string> suitablePreviews = suitableMethods.ConvertAll(method => ConsoleEventDatabase.GenerateMethodPreview(method));
 
                 string selectedMethodPreview = methodPreviewProp.stringValue;
                 int methodIndex = 0;

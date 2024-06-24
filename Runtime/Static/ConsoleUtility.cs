@@ -17,11 +17,11 @@ namespace com.absence.consolesystem.internals
         {
             string methodPreview = command.MethodPreview;
 
-            if (!ConsoleEventHandler.PreviewsOfMethodsInBuild.Contains(methodPreview)) return false;
+            if (!ConsoleEventDatabase.PreviewsOfMethodsInBuild.Contains(methodPreview)) return false;
 
             try
             {
-                MethodInfo targetMethod = ConsoleEventHandler.MethodsInBuild[ConsoleEventHandler.PreviewsOfMethodsInBuild.IndexOf(methodPreview)];
+                MethodInfo targetMethod = ConsoleEventDatabase.MethodsInBuild[ConsoleEventDatabase.PreviewsOfMethodsInBuild.IndexOf(methodPreview)];
                 if (command.Arguments.Count > 0) targetMethod.Invoke(null, args);
                 else targetMethod.Invoke(null, null);
 

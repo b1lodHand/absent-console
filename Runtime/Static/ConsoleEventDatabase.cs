@@ -10,7 +10,7 @@ namespace com.absence.consolesystem.internals
     /// <summary>
     /// The static class responsible for searching and containing static methods needed by commands.
     /// </summary>
-    public static class ConsoleEventHandler
+    public static class ConsoleEventDatabase
     {
         public const bool DEBUG_MODE = false;
         const string DEFAULT_METHOD_NAME = nameof(ConsoleDefaultCommands.no_methods_selected);
