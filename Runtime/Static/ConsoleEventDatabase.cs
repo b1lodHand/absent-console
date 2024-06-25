@@ -69,12 +69,15 @@ namespace com.absence.consolesystem.internals
         {
             StringBuilder debugMessage = new();
 
-            debugMessage.Append("<b>[CONSOLE]: Methods loaded:</b> ");
+            debugMessage.Append("<b>[CONSOLE] Methods loaded:</b> ");
 
             m_methodPreviews.ForEach(methodPreview =>
             {
-                debugMessage.Append("\n\t-> ");
+                debugMessage.Append("\n\t");
+                debugMessage.Append("-> ");
+                debugMessage.Append("<color=white>");
                 debugMessage.Append(methodPreview);
+                debugMessage.Append("</color>");
             });
 
             return debugMessage.ToString();

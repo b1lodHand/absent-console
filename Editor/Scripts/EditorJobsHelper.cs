@@ -14,7 +14,7 @@ namespace com.absence.consolesystem.editor
             ConsoleEventDatabase.RefreshMethods(ConsoleEventDatabase.DEBUG_MODE);
         }
 
-        [MenuItem("absencee_/absent-console/Refresh Methods")]
+        [MenuItem("absencee_/absent-console/Refresh Method Database")]
         static void RefreshMethods()
         {
             ConsoleEventDatabase.RefreshMethods(true);
