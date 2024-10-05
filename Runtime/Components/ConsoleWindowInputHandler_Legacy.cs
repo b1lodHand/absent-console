@@ -39,7 +39,7 @@ namespace com.absence.consolesystem
 
             if (!ConsoleWindow.Instance.IsOpen) return;
 
-            if (Input.GetKeyDown(KeyCode.Return)) ConsoleWindow.Instance.RetrieveEnterInput();
+            if (Input.GetKeyDown(KeyCode.Return)) ConsoleWindow.Instance.Push();
 
             if (Input.GetKeyDown(KeyCode.UpArrow)) ConsoleWindow.Instance.LoadLastCommand();
         }

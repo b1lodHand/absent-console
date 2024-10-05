@@ -99,6 +99,9 @@ namespace com.absence.consolesystem.internals
                 case Argument.ArgumentValueType.Boolean:
                     return k_boolParamColor;
 
+                case Argument.ArgumentValueType.OnOff:
+                    return k_boolParamColor;
+
                 default:
                     return k_customParamColor;
             }

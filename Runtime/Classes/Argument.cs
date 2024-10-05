@@ -18,7 +18,7 @@ namespace com.absence.consolesystem.internals
             Custom = 6,
         }
 
-        [SerializeField] private string m_name = "!null";
+        [SerializeField] private string m_name = "null";
         [SerializeField] private ArgumentValueType m_valueType = ArgumentValueType.Boolean;
 
         public string Name => m_name;

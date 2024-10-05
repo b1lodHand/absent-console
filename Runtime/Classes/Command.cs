@@ -9,7 +9,7 @@ namespace com.absence.consolesystem.internals
     [System.Serializable]
     public class Command
     {
-        [SerializeField] private string m_keyword = "::null";
+        [SerializeField] private string m_keyword = "null";
         [SerializeField] private List<Argument> m_arguments = new();
 
         [SerializeField] private string m_description;

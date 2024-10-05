@@ -1,4 +1,5 @@
 using com.absence.consolesystem.internals;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,11 +22,10 @@ namespace com.absence.consolesystem
         public static ConsoleWindow Instance => m_instance;
         #endregion
 
-        [SerializeField] private ConsoleProfile m_profile;
-        public ConsoleProfile Profile => m_profile;
+        [SerializeField, Tooltip("Profile of this window.")] 
+        private ConsoleProfile m_profile;
 
-        [SerializeField] private bool m_caseSensitive = false;
-        public bool IsCaseSensitive => m_caseSensitive;
+        public ConsoleProfile Profile => m_profile;
 
         private List<Command> m_commands = new();
         public List<Command> Commands => m_commands;
@@ -34,10 +34,39 @@ namespace com.absence.consolesystem
 
         [Header("UI")]
 
-        [SerializeField] private GameObject m_panel;
-        [SerializeField] private InputField m_inputField;
-        [SerializeField] private Text m_logText;
-        [SerializeField] private ScrollRect m_scrollRect;
+        [SerializeField, Tooltip("Panel of this window. Used for open/close events.")] 
+        private GameObject m_panel;
+
+        [SerializeField, Tooltip("Input field of this window. Used for user interactions.")] 
+        private InputField m_inputField;
+
+        [SerializeField, Tooltip("The text that displays all messages written to this window since its initialization. This field is <b>optional</b>.")] 
+        private Text m_logText;
+
+        [SerializeField, Tooltip("The scroll rect used for letting a user view the intended portion of log text at a time. This field is <b>optional</b>.")] 
+        private ScrollRect m_scrollRect;
+
+        [Space(10)]
+
+        [Header("Utilities")]
+
+        [SerializeField, Tooltip("If true, all command equality checks performed by this window will be case sensitive.")] 
+        private bool m_caseSensitive = false;
+
+        public bool IsCaseSensitive => m_caseSensitive;
+
+        [SerializeField, Tooltip("If true, this window tries to move the most parent object in its local hierarchy to the DontDestroyOnLoad scene on its initialization.")] 
+        private bool m_dontDestroyOnLoad = true;
+
+        /// <summary>
+        /// Action which gets invoked when this window opens.
+        /// </summary>
+        public event Action OnOpen = null;
+
+        /// <summary>
+        /// Action which gets invoked when this window closes.
+        /// </summary>
+        public event Action OnClose = null;
 
         private bool m_open = false;
         public bool IsOpen => m_open;
@@ -59,15 +88,147 @@ namespace com.absence.consolesystem
             }
             m_instance = this;
             #endregion
+            
+            if (m_dontDestroyOnLoad) 
+            {
+                Transform dontDestroyOnLoadTarget = transform;
+                while (dontDestroyOnLoadTarget.parent != null) dontDestroyOnLoadTarget = dontDestroyOnLoadTarget.parent;
 
-            Transform dontDestroyOnLoadTarget = transform;
-            while(dontDestroyOnLoadTarget.parent != null) dontDestroyOnLoadTarget = dontDestroyOnLoadTarget.parent;
-
-            DontDestroyOnLoad(dontDestroyOnLoadTarget.gameObject);
+                DontDestroyOnLoad(dontDestroyOnLoadTarget.gameObject);
+            }
 
             CloseWindow(true);
             FetchCommands();
         }
+
+        #region Public API
+
+        /// <summary>
+        /// Writes to this console window.
+        /// </summary>
+        /// <param name="messageToWrite">Message to write.</param>
+        /// <param name="extraLineBreak">If true, an extra vertical space (\n) is added to the end of the message written.</param>
+        public void Write(string messageToWrite, bool extraLineBreak = true)
+        {
+            if (m_logText == null) return;
+
+            StringBuilder sb = new(m_logText.text);
+            sb.Append(messageToWrite);
+
+            sb.Append("\n");
+            if (extraLineBreak) sb.Append("\n");
+
+            m_logText.text = sb.ToString();
+
+            Canvas.ForceUpdateCanvases();
+            if (m_scrollRect != null) m_scrollRect.verticalNormalizedPosition = 0f;
+        }
+        /// <summary>
+        /// Checks the attached console profile for any commands with the keyword provided, considering
+        /// the value of '<see cref="m_caseSensitive"/>'.
+        /// </summary>
+        /// <param name="keyword">Keyword to check.</param>
+        /// <returns></returns>
+        public List<Command> GetCommandsWithTheKeyword(string keyword)
+        {
+            keyword = keyword.Trim();
+
+            return Commands.Where(command =>
+            {
+                if (m_caseSensitive) return keyword == command.Keyword;
+                else return keyword.ToLower() == command.Keyword.ToLower();
+            }).ToList();
+        }
+        /// <summary>
+        /// Opens this console window.
+        /// </summary>
+        public void OpenWindow()
+        {
+            if (m_open) return;
+
+            m_open = true;
+
+            m_panel.SetActive(true);
+
+            SelectInputField();
+            OnOpen?.Invoke();
+        }
+        /// <summary>
+        /// Closes this console window.
+        /// </summary>
+        /// <param name="clearInputField">If true, the input field gets cleared on close.</param>
+        public void CloseWindow(bool clearInputField)
+        {
+            if (!m_open) return;
+
+            m_open = false;
+
+            m_currentCommand = m_inputField.text;
+            if (clearInputField) ClearInputField();
+            EventSystem.current.SetSelectedGameObject(null);
+
+            m_panel.SetActive(false);
+            OnClose?.Invoke();
+        }
+        /// <summary>
+        /// Selects the input field and focuses on it.
+        /// </summary>
+        public void SelectInputField()
+        {
+            m_inputField.Select();
+            StartCoroutine(C_DisableHighlight());
+        }
+        /// <summary>
+        /// Clears the input field.
+        /// </summary>
+        public void ClearInputField()
+        {
+            m_inputField.text = string.Empty;
+        }
+        /// <summary>
+        /// Switches window visibility between on/off.
+        /// </summary>
+        public void SwitchWindowVisibility()
+        {
+            if (m_open) CloseWindow(false);
+            else OpenWindow();
+        }
+        /// <summary>
+        /// Pushes input fields current value to the console.
+        /// </summary>
+        public void Push()
+        {
+            m_currentCommand = m_inputField.text;
+            m_lastCommandInvoked = m_currentCommand;
+
+            if (!TryParseInput(m_currentCommand, out Command command, out object[] args))
+            {
+                m_currentCommand = string.Empty;
+                StartCoroutine(C_ClearInputField());
+                return;
+            }
+
+            if (!ConsoleUtility.InvokeCommand(command, args))
+            {
+                Console.LogError("Something went wrong while invoking the command.");
+            }
+
+            m_currentCommand = string.Empty;
+            StartCoroutine(C_ClearInputField());
+        }
+        /// <summary>
+        /// Sets input field's value to the last entered command whether it was valid or not.
+        /// </summary>
+        public void LoadLastCommand()
+        {
+            if (EventSystem.current.currentSelectedGameObject != m_inputField.gameObject) return;
+            if (string.IsNullOrWhiteSpace(m_lastCommandInvoked)) return;
+
+            m_inputField.text = m_lastCommandInvoked;
+            m_inputField.MoveTextEnd(false);
+        }
+
+        #endregion
 
         private void FetchCommands()
         {
@@ -176,89 +337,7 @@ namespace com.absence.consolesystem
             return true;
         }
 
-        public void Write(string messageToWrite, bool extraLineBreak = true)
-        {
-            StringBuilder sb = new(m_logText.text);
-            sb.Append(messageToWrite);
-
-            sb.Append("\n");
-            if (extraLineBreak) sb.Append("\n");
-
-            m_logText.text = sb.ToString();
-
-            Canvas.ForceUpdateCanvases();
-            m_scrollRect.verticalNormalizedPosition = 0f;
-        }
-        public List<Command> GetCommandsWithTheKeyword(string keyword)
-        {
-            keyword = keyword.Trim();
-
-            return Commands.Where(command =>
-            {
-                if (m_caseSensitive) return keyword == command.Keyword;
-                else return keyword.ToLower() == command.Keyword.ToLower();
-            }).ToList();
-        }
-
-        public void OpenWindow()
-        {
-            m_open = true;
-
-            m_panel.SetActive(true);
-
-            SelectInputField();
-        }
-        public void CloseWindow(bool clearConsole)
-        {
-            m_open = false;
-
-            m_currentCommand = m_inputField.text;
-            if (clearConsole) m_inputField.text = string.Empty;
-            EventSystem.current.SetSelectedGameObject(null);
-
-            m_panel.SetActive(false);
-        }
-        public void SwitchWindowVisibility()
-        {
-            if (m_open) CloseWindow(false);
-            else OpenWindow();
-        }
-        public void RetrieveEnterInput()
-        {
-            m_currentCommand = m_inputField.text;
-            m_lastCommandInvoked = m_currentCommand;
-
-            if (!TryParseInput(m_currentCommand, out Command command, out object[] args))
-            {
-                m_currentCommand = string.Empty;
-                StartCoroutine(ClearInputField());
-                return;
-            }
-
-            if (!ConsoleUtility.InvokeCommand(command, args))
-            {
-                Console.LogError("Something went wrong while invoking the command.");
-            }
-
-            m_currentCommand = string.Empty;
-            StartCoroutine(ClearInputField());
-        }
-        public void LoadLastCommand()
-        {
-            if (EventSystem.current.currentSelectedGameObject != m_inputField.gameObject) return;
-            if (string.IsNullOrWhiteSpace(m_lastCommandInvoked)) return;
-
-            m_inputField.text = m_lastCommandInvoked;
-            m_inputField.MoveTextEnd(false);
-        }
-
-
-        private void SelectInputField()
-        {
-            m_inputField.Select();
-            StartCoroutine(C_DisableHighlight());
-        }
-        private IEnumerator ClearInputField()
+        private IEnumerator C_ClearInputField()
         {
             EventSystem.current.SetSelectedGameObject(null);
 
