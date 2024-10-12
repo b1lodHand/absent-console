@@ -89,6 +89,11 @@ namespace com.absence.consolesystem
             m_instance = this;
             #endregion
             
+            if (EventSystem.current == null)
+            {
+                Debug.LogWarning("No EventSystems fount in the scene. Console Window NEEDS an EventSystem to work.");
+            }
+
             if (m_dontDestroyOnLoad) 
             {
                 Transform dontDestroyOnLoadTarget = transform;
