@@ -1,3 +1,5 @@
+using com.absence.consolesystem.imported;
+using com.absence.consolesystem.internals;
 using UnityEngine;
 
 namespace com.absence.consolesystem
@@ -10,26 +12,35 @@ namespace com.absence.consolesystem
     [AddComponentMenu("absencee_/absent-console/Console Window Input Handler (Legacy)")]
     public class ConsoleWindowInputHandler_Legacy : MonoBehaviour
     {
+        [SerializeField] private ConsoleWindowSelectionType m_selectionType = ConsoleWindowSelectionType.Singleton;
         [SerializeField] private KeyCode m_keyToOpen = KeyCode.Tab;
 
-        private void Start()
-        {
-            if (ConsoleWindow.Instance == null)
-            {
-                Debug.Log("There are no consoles to send input. Disabling input handler.");
-                enabled = false;
-            }
-        }
+        [SerializeField, 
+            HideIf(nameof(m_selectionType), ConsoleWindowSelectionType.Singleton), 
+            EnableIf(nameof(m_selectionType), ConsoleWindowSelectionType.Manual)]
+        private ConsoleWindow m_targetConsoleWindow;
 
         private void Update()
         {
-            if (Input.GetKeyDown(m_keyToOpen)) ConsoleWindow.Instance.SwitchWindowVisibility();
+            ConsoleWindow target = (m_selectionType == ConsoleWindowSelectionType.Singleton) ? ConsoleWindow.Instance : m_targetConsoleWindow;
 
-            if (!ConsoleWindow.Instance.IsOpen) return;
+            if (Input.GetKeyDown(m_keyToOpen)) target.SwitchWindowVisibility();
 
-            if (Input.GetKeyDown(KeyCode.Return)) ConsoleWindow.Instance.Push();
+            if (!target.IsOpen) return;
 
-            if (Input.GetKeyDown(KeyCode.UpArrow)) ConsoleWindow.Instance.LoadLastCommand();
+            if (Input.GetKeyDown(KeyCode.Return)) target.Push();
+
+            if (Input.GetKeyDown(KeyCode.UpArrow)) target.LoadLastCommand();
+        }
+
+        private void OnValidate()
+        {
+            if (m_selectionType != ConsoleWindowSelectionType.AutoOnSameObject) return;
+
+            if (TryGetComponent(out ConsoleWindow windowFound))
+            {
+                m_targetConsoleWindow = windowFound;
+            }
         }
     }
 }

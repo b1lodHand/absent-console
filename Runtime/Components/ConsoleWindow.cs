@@ -58,6 +58,9 @@ namespace com.absence.consolesystem
         [SerializeField, Tooltip("If true, this window tries to move the most parent object in its local hierarchy to the DontDestroyOnLoad scene on its initialization.")] 
         private bool m_dontDestroyOnLoad = true;
 
+        [SerializeField, Tooltip("If true, at the start of the scene it's in, this window will try to be the ConsoleWindow.Instance. If it fails, it will destroy itself.")]
+        private bool m_singleton = true;
+
         /// <summary>
         /// Action which gets invoked when this window opens.
         /// </summary>
@@ -81,12 +84,18 @@ namespace com.absence.consolesystem
         private void Awake()
         {
             #region Singleton
-            if (m_instance != null)
+
+            if (m_singleton)
             {
-                Destroy(gameObject);
-                return;
+                if (m_instance != null)
+                {
+                    Destroy(gameObject);
+                    return;
+                }
+
+                m_instance = this;
             }
-            m_instance = this;
+
             #endregion
             
             if (EventSystem.current == null)

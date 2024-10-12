@@ -1,5 +1,7 @@
 #if ENABLE_INPUT_SYSTEM
 
+using com.absence.consolesystem.imported;
+using com.absence.consolesystem.internals;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,35 +16,51 @@ namespace com.absence.consolesystem
     [AddComponentMenu("absencee_/absent-console/Console Window Input Handler (New)")]
     public class ConsoleWindowInputHandler_New : MonoBehaviour
     {
+        [SerializeField] private ConsoleWindowSelectionType m_selectionType = ConsoleWindowSelectionType.Singleton;
         [SerializeField] private Key m_keyToOpen = Key.Tab;
+
+        [SerializeField,
+    HideIf(nameof(m_selectionType), ConsoleWindowSelectionType.Singleton, order = 0),
+    EnableIf(nameof(m_selectionType), ConsoleWindowSelectionType.Manual, order = 1)]
+        private ConsoleWindow m_targetConsoleWindow;
+
+        KeyControl m_openKeyCtrl;
+        KeyControl m_submitKeyCtrl;
+        KeyControl m_copyKeyCtrl;
 
         private void Start()
         {
-            if (ConsoleWindow.Instance == null)
-            {
-                Debug.Log("There are no consoles to send/receive input. Disabling input handler.");
-                enabled = false;
-            }
+            m_openKeyCtrl =
+            Keyboard.current.allKeys.FirstOrDefault(keyCtrl => keyCtrl.keyCode == m_keyToOpen);
+
+            m_submitKeyCtrl =
+                Keyboard.current.allKeys.FirstOrDefault(keyCtrl => keyCtrl.keyCode == Key.Enter);
+
+            m_copyKeyCtrl =
+                Keyboard.current.allKeys.FirstOrDefault(keyCtrl => keyCtrl.keyCode == Key.UpArrow);
         }
 
         private void Update()
         {
-            KeyControl openKeyCtrl =
-                Keyboard.current.allKeys.FirstOrDefault(keyCtrl => keyCtrl.keyCode == m_keyToOpen);
+            ConsoleWindow target = (m_selectionType == ConsoleWindowSelectionType.Singleton) ? ConsoleWindow.Instance : m_targetConsoleWindow;
 
-            KeyControl submitKeyCtrl =
-                Keyboard.current.allKeys.FirstOrDefault(keyCtrl => keyCtrl.keyCode == Key.Enter);
+            if (m_openKeyCtrl != null && m_openKeyCtrl.wasPressedThisFrame) target.SwitchWindowVisibility();
 
-            KeyControl copyKeyCtrl =
-                Keyboard.current.allKeys.FirstOrDefault(keyCtrl => keyCtrl.keyCode == Key.UpArrow);
+            if (!target.IsOpen) return;
 
-            if (openKeyCtrl != null && openKeyCtrl.isPressed) ConsoleWindow.Instance.SwitchWindowVisibility();
+            if (m_submitKeyCtrl != null && m_submitKeyCtrl.wasPressedThisFrame) target.Push();
 
-            if (!ConsoleWindow.Instance.IsOpen) return;
+            if (m_copyKeyCtrl != null && m_copyKeyCtrl.wasPressedThisFrame) target.LoadLastCommand();
+        }
 
-            if (submitKeyCtrl != null && submitKeyCtrl.isPressed) ConsoleWindow.Instance.Push();
+        private void OnValidate()
+        {
+            if (m_selectionType != ConsoleWindowSelectionType.AutoOnSameObject) return;
 
-            if (copyKeyCtrl != null && copyKeyCtrl.isPressed) ConsoleWindow.Instance.LoadLastCommand();
+            if (TryGetComponent(out ConsoleWindow windowFound))
+            {
+                m_targetConsoleWindow = windowFound;
+            }
         }
     }
 }
