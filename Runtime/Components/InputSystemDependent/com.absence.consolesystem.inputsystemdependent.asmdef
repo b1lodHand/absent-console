@@ -1,0 +1,25 @@
+{
+    "name": "com.absence.consolesystem.inputsystemdependent",
+    "rootNamespace": "com.absence.consolesystem",
+    "references": [
+        "com.absence.consolesystem",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "INPUT_SYSTEM_INSTALLED"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.11.1",
+            "define": "INPUT_SYSTEM_INSTALLED"
+        }
+    ],
+    "noEngineReferences": false
+}

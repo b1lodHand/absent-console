@@ -30,6 +30,10 @@ namespace com.absence.consolesystem.internals
             RefreshMethods(DEBUG_MODE);
         }
 
+        /// <summary>
+        /// Use to refresh and find the methods in the build using reflection.
+        /// </summary>
+        /// <param name="debugMode">If true, result will be printed into Unity's console.</param>
         public static void RefreshMethods(bool debugMode = false)
         {
             m_methodsInBuild = new();
@@ -64,7 +68,11 @@ namespace com.absence.consolesystem.internals
 
             Debug.Log(PrintMethodList());
         }
-
+        
+        /// <summary>
+        /// Use to print the current list of methods included in the build.
+        /// </summary>
+        /// <returns></returns>
         public static string PrintMethodList()
         {
             StringBuilder debugMessage = new();
@@ -83,6 +91,11 @@ namespace com.absence.consolesystem.internals
             return debugMessage.ToString();
         }
 
+        /// <summary>
+        /// Use to generate a preview of a method.
+        /// </summary>
+        /// <param name="method">Method to generate preview from.</param>
+        /// <returns>The preview generated as string.</returns>
         public static string GenerateMethodPreview(MethodInfo method)
         {
             StringBuilder sb = new();
@@ -106,6 +119,11 @@ namespace com.absence.consolesystem.internals
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Use to get all suitable methods in the build for a specific command.
+        /// </summary>
+        /// <param name="command">The specific command.</param>
+        /// <returns></returns>
         public static List<MethodInfo> GetSuitableMethodsForCommand(Command command)
         {
             List<MethodInfo> temp = MethodsInBuild.Where(method => method.GetParameters().Length == command.Arguments.Count).ToList();
@@ -135,6 +153,12 @@ namespace com.absence.consolesystem.internals
             return temp;
         }
 
+        /// <summary>
+        /// Use to check if a type is valid for a specific type of built-in argument value type.
+        /// </summary>
+        /// <param name="originalValueType">Original argument value type.</param>
+        /// <param name="type">Type to check.</param>
+        /// <returns></returns>
         public static bool IsValidArgumentType(Argument.ArgumentValueType originalValueType, Type type)
         {
             switch (Type.GetTypeCode(type))

@@ -7,7 +7,7 @@ namespace com.absence.consolesystem.editor
     /// The static class responsible for managing the editor-side tasks of the console system.
     /// </summary>
     [InitializeOnLoad]
-    internal static class EditorJobsHelper
+    public static class EditorJobsHelper
     {
         static EditorJobsHelper()
         {

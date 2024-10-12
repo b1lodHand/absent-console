@@ -20,6 +20,12 @@ namespace com.absence.consolesystem.internals
         public const string LOG_COLOR = k_white;
         public const string DESCRIPTION_COLOR = "#bfbfbf";
 
+        /// <summary>
+        /// Use to generate a preview from a command.
+        /// </summary>
+        /// <param name="command">Command to generate preview from.</param>
+        /// <param name="richText">If true, some areas in the result will be wrapped with color tags.</param>
+        /// <returns>Returns the preview generated.</returns>
         public static string GeneratePreviewForCommand(Command command, bool richText = false)
         {
             StringBuilder preview = new();
@@ -40,6 +46,12 @@ namespace com.absence.consolesystem.internals
 
             return preview.ToString();
         }
+        /// <summary>
+        /// Use to generate a preview from a parameter.
+        /// </summary>
+        /// <param name="command">Parameter to generate preview from.</param>
+        /// <param name="richText">If true, some areas in the result will be wrapped with color tags.</param>
+        /// <returns>Returns the preview generated.</returns>
         public static string GeneratePreviewForParameter(Argument parameter, bool richText = false)
         {
             StringBuilder preview = new();
@@ -59,6 +71,11 @@ namespace com.absence.consolesystem.internals
 
             return preview.ToString();
         }
+        /// <summary>
+        /// Use to generate a detailed description from a command.
+        /// </summary>
+        /// <param name="command">Command to generate description from.</param>
+        /// <returns>Returns the description generated.</returns>
         public static string GenerateDetailedDescriptionForCommand(Command command)
         {
             StringBuilder sb = new();
@@ -73,6 +90,12 @@ namespace com.absence.consolesystem.internals
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Use to wrap a string with XML color tags, specifying the color.
+        /// </summary>
+        /// <param name="messageToWrap">Message to wrap.</param>
+        /// <param name="colorTag">Hex code of the color wanted.</param>
+        /// <returns>Returns the wrapped version of the message.</returns>
         public static string WrapWithColorTag(string messageToWrap, string colorTag)
         {
             StringBuilder sb = new();
@@ -83,6 +106,11 @@ namespace com.absence.consolesystem.internals
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Use to get the hex color code of an argument value type.
+        /// </summary>
+        /// <param name="valueType">The argument value type.</param>
+        /// <returns>Returns the hex code found.</returns>
         private static string GetColorTag(Argument.ArgumentValueType valueType)
         {
             switch (valueType)

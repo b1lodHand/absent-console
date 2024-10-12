@@ -3,7 +3,10 @@ using System.Text;
 
 namespace com.absence.consolesystem.internals
 {
-    internal static class ConsoleDefaultCommands
+    /// <summary>
+    /// The static class which contains the default commands that come with the package.
+    /// </summary>
+    public static class ConsoleDefaultCommands
     {
         [Command]
         public static void no_methods_selected()

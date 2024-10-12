@@ -13,6 +13,12 @@ namespace com.absence.consolesystem.internals
         
         public static readonly char[] STRING_WRAPPER_CHARS = {'\'', '\"', '`'};
 
+        /// <summary>
+        /// Use to invoke a command.
+        /// </summary>
+        /// <param name="command">Command to invoke.</param>
+        /// <param name="args">Arguments, if needed.</param>
+        /// <returns></returns>
         public static bool InvokeCommand(Command command, object[] args)
         {
             string methodPreview = command.MethodPreview;
@@ -33,6 +39,15 @@ namespace com.absence.consolesystem.internals
                 return false;
             }
         }
+
+        /// <summary>
+        /// Check if an argument input is valid.
+        /// </summary>
+        /// <param name="originalValueType">Original argument value type to use.</param>
+        /// <param name="argInput">Raw argument input.</param>
+        /// <param name="forKeyword">Keyword to limit the scope of the check.</param>
+        /// <param name="parsedValue">Output of the parsed value of the argument.</param>
+        /// <returns></returns>
         public static bool IsValidArgumentInput(Argument.ArgumentValueType originalValueType, string argInput, string forKeyword, out object parsedValue)
         {
             parsedValue = null;
