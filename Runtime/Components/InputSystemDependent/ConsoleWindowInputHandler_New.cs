@@ -14,15 +14,9 @@ namespace com.absence.consolesystem
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("absencee_/absent-console/Console Window Input Handler (New)")]
-    public class ConsoleWindowInputHandler_New : MonoBehaviour
+    public class ConsoleWindowInputHandler_New : ConsoleWindowInputHandlerBase
     {
-        [SerializeField] private ConsoleWindowSelectionType m_selectionType = ConsoleWindowSelectionType.Singleton;
-        [SerializeField] private Key m_keyToOpen = Key.Tab;
-
-        [SerializeField,
-    HideIf(nameof(m_selectionType), ConsoleWindowSelectionType.Singleton, order = 0),
-    EnableIf(nameof(m_selectionType), ConsoleWindowSelectionType.Manual, order = 1)]
-        private ConsoleWindow m_targetConsoleWindow;
+        [SerializeField, Space(10)] private Key m_keyToOpen = Key.Tab;
 
         KeyControl m_openKeyCtrl;
         KeyControl m_submitKeyCtrl;
@@ -51,16 +45,6 @@ namespace com.absence.consolesystem
             if (m_submitKeyCtrl != null && m_submitKeyCtrl.wasPressedThisFrame) target.Push();
 
             if (m_copyKeyCtrl != null && m_copyKeyCtrl.wasPressedThisFrame) target.LoadLastCommand();
-        }
-
-        private void OnValidate()
-        {
-            if (m_selectionType != ConsoleWindowSelectionType.AutoOnSameObject) return;
-
-            if (TryGetComponent(out ConsoleWindow windowFound))
-            {
-                m_targetConsoleWindow = windowFound;
-            }
         }
     }
 }

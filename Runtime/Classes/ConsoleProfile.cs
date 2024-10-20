@@ -7,7 +7,7 @@ namespace com.absence.consolesystem
     /// <summary>
     /// The scriptable object responsible for holding commands.
     /// </summary>
-    [CreateAssetMenu(menuName = "absencee_/absent-console/Console Profile", fileName = "New Console Profile")]
+    [CreateAssetMenu(menuName = "absencee_/absent-console/Console Profile (Empty)", fileName = "New Empty Console Profile")]
     public class ConsoleProfile : ScriptableObject
     {
         [SerializeField] private List<Command> m_commands = new();

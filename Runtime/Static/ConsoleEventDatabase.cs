@@ -12,7 +12,9 @@ namespace com.absence.consolesystem.internals
     /// </summary>
     public static class ConsoleEventDatabase
     {
+        public const bool AUTO_LOAD_METHODS = true;
         public const bool DEBUG_MODE = false;
+
         const string DEFAULT_METHOD_NAME = nameof(ConsoleDefaultCommands.no_methods_selected);
         static MethodInfo DefaultMethod => MethodsInBuild.Where(method => method.Name == DEFAULT_METHOD_NAME).FirstOrDefault();
 
@@ -27,6 +29,10 @@ namespace com.absence.consolesystem.internals
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
         static void RefreshMethods_Auto()
         {
+#pragma warning disable CS0162 // Unreachable code detected
+            if (!AUTO_LOAD_METHODS) return;
+#pragma warning restore CS0162 // Unreachable code detected
+
             RefreshMethods(DEBUG_MODE);
         }
 

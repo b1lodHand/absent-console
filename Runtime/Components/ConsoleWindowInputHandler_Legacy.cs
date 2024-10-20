@@ -8,17 +8,10 @@ namespace com.absence.consolesystem
     /// A small component which lets the current console window to receive input. (Uses Unity's 
     /// old input system.)
     /// </summary>
-    [DisallowMultipleComponent]
     [AddComponentMenu("absencee_/absent-console/Console Window Input Handler (Legacy)")]
-    public class ConsoleWindowInputHandler_Legacy : MonoBehaviour
+    public class ConsoleWindowInputHandler_Legacy : ConsoleWindowInputHandlerBase
     {
-        [SerializeField] private ConsoleWindowSelectionType m_selectionType = ConsoleWindowSelectionType.Singleton;
-        [SerializeField] private KeyCode m_keyToOpen = KeyCode.Tab;
-
-        [SerializeField, 
-            HideIf(nameof(m_selectionType), ConsoleWindowSelectionType.Singleton), 
-            EnableIf(nameof(m_selectionType), ConsoleWindowSelectionType.Manual)]
-        private ConsoleWindow m_targetConsoleWindow;
+        [SerializeField, Space(10)] private KeyCode m_keyToOpen = KeyCode.Tab;
 
         private void Update()
         {
@@ -31,16 +24,6 @@ namespace com.absence.consolesystem
             if (Input.GetKeyDown(KeyCode.Return)) target.Push();
 
             if (Input.GetKeyDown(KeyCode.UpArrow)) target.LoadLastCommand();
-        }
-
-        private void OnValidate()
-        {
-            if (m_selectionType != ConsoleWindowSelectionType.AutoOnSameObject) return;
-
-            if (TryGetComponent(out ConsoleWindow windowFound))
-            {
-                m_targetConsoleWindow = windowFound;
-            }
         }
     }
 }
