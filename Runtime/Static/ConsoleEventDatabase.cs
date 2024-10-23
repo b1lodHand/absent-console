@@ -31,9 +31,9 @@ namespace com.absence.consolesystem.internals
         {
 #pragma warning disable CS0162 // Unreachable code detected
             if (!AUTO_LOAD_METHODS) return;
-#pragma warning restore CS0162 // Unreachable code detected
 
             RefreshMethods(DEBUG_MODE);
+#pragma warning restore CS0162 // Unreachable code detected
         }
 
         /// <summary>
