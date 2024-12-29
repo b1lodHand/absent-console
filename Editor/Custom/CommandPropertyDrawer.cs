@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using ConsoleWindowUtility = com.absence.consolesystem.internals.ConsoleWindowUtility;
 
 namespace com.absence.consolesystem.editor
 {
