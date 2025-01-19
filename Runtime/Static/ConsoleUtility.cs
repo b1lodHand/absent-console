@@ -18,7 +18,7 @@ namespace com.absence.consolesystem.internals
         /// <param name="command">Command to invoke.</param>
         /// <param name="args">Arguments, if needed.</param>
         /// <returns></returns>
-        public static bool InvokeCommand(Command command, object[] args)
+        public static bool InvokeCommand(ConsoleWindow sender, Command command, object[] args)
         {
             string methodPreview = command.MethodPreview;
 
@@ -26,15 +26,19 @@ namespace com.absence.consolesystem.internals
 
             try
             {
+                ConsoleWindow.Sender = sender;
+
                 MethodInfo targetMethod = ConsoleEventDatabase.MethodsInBuild[ConsoleEventDatabase.PreviewsOfMethodsInBuild.IndexOf(methodPreview)];
                 if (command.Arguments.Count > 0) targetMethod.Invoke(null, args);
                 else targetMethod.Invoke(null, null);
 
+                ConsoleWindow.Sender = null;
                 return true;
             }
 
             catch
             {
+                ConsoleWindow.Sender = null;
                 return false;
             }
         }

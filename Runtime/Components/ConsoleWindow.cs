@@ -17,6 +17,13 @@ namespace com.absence.consolesystem
     [AddComponentMenu("absencee_/absent-console/Console Window")]
     public class ConsoleWindow : MonoBehaviour
     {
+        /// <summary>
+        /// Use only inside a function marked with the <see cref="CommandAttribute"/>. 
+        /// Returns the console window invoked the current command.
+        /// Returns null if the control is not inside a command function.
+        /// </summary>
+        public static ConsoleWindow Sender { get; internal set; }
+
         #region Singleton
         private static ConsoleWindow m_instance;
         public static ConsoleWindow Instance => m_instance;
@@ -118,7 +125,7 @@ namespace com.absence.consolesystem
         #region Public API
 
         /// <summary>
-        /// Writes to this console window.
+        /// Writes a message to this console.
         /// </summary>
         /// <param name="messageToWrite">Message to write.</param>
         /// <param name="extraLineBreak">If true, an extra vertical space (\n) is added to the end of the message written.</param>
@@ -137,6 +144,35 @@ namespace com.absence.consolesystem
             Canvas.ForceUpdateCanvases();
             if (m_scrollRect != null) m_scrollRect.verticalNormalizedPosition = 0f;
         }
+
+        /// <summary>
+        /// Writes a message with the color of white.
+        /// </summary>
+        /// <param name="message">Message to write.</param>
+        /// <param name="extraLineBreak">>If true, an extra vertical space (\n) is added to the end of the message written.</param>
+        public void Log(string message, bool extraLineBreak = true)
+        {
+            Write(ConsoleWindowUtility.WrapWithColorTag(message, ConsoleWindowUtility.LOG_COLOR), extraLineBreak);
+        }
+        /// <summary>
+        /// Writes a message with the color of yellow.
+        /// </summary>
+        /// <param name="message">Message to write.</param>
+        /// <param name="extraLineBreak">>If true, an extra vertical space (\n) is added to the end of the message written.</param>
+        public void LogWarning(string message, bool extraLineBreak = true)
+        {
+            Write(ConsoleWindowUtility.WrapWithColorTag(message, ConsoleWindowUtility.WARNING_COLOR), extraLineBreak);
+        }
+        /// <summary>
+        /// Writes a message with the color of red.
+        /// </summary>
+        /// <param name="message">Message to write.</param>
+        /// <param name="extraLineBreak">>If true, an extra vertical space (\n) is added to the end of the message written.</param>
+        public void LogError(string message, bool extraLineBreak = true)
+        {
+            Write(ConsoleWindowUtility.WrapWithColorTag(message, ConsoleWindowUtility.ERROR_COLOR), extraLineBreak);
+        }
+
         /// <summary>
         /// Checks the attached console profile for any commands with the keyword provided, considering
         /// the value of '<see cref="m_caseSensitive"/>'.
@@ -153,9 +189,11 @@ namespace com.absence.consolesystem
                 else return keyword.ToLower() == command.Keyword.ToLower();
             }).ToList();
         }
+
         /// <summary>
         /// Opens this console window.
         /// </summary>
+        /// 
         public void OpenWindow()
         {
             if (m_open) return;
@@ -187,6 +225,7 @@ namespace com.absence.consolesystem
         /// <summary>
         /// Selects the input field and focuses on it.
         /// </summary>
+        /// 
         public void SelectInputField()
         {
             m_inputField.Select();
@@ -222,7 +261,7 @@ namespace com.absence.consolesystem
                 return;
             }
 
-            if (!ConsoleUtility.InvokeCommand(command, args))
+            if (!ConsoleUtility.InvokeCommand(this, command, args))
             {
                 Console.LogError("Something went wrong while invoking the command.");
             }

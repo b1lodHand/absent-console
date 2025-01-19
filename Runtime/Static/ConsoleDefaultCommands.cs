@@ -11,7 +11,7 @@ namespace com.absence.consolesystem.internals
         [Command]
         public static void no_methods_selected()
         {
-            Console.Log("There are no methods selected for this command. ");
+            ConsoleWindow.Sender.Log("There are no methods selected for this command. ");
         }
 
         [Command]
@@ -29,7 +29,7 @@ namespace com.absence.consolesystem.internals
                 sb.Append(Help_GenerateDesciption(command));
             });
 
-            Console.Log(sb.ToString());
+            ConsoleWindow.Sender.Log(sb.ToString());
         }
 
         [Command]
@@ -54,7 +54,7 @@ namespace com.absence.consolesystem.internals
                 sb.Append(Help_GenerateDesciption(command));
             });
 
-            Console.Log(sb.ToString());
+            ConsoleWindow.Sender.Log(sb.ToString());
         }
 
         static string Help_GenerateDesciption(Command command)

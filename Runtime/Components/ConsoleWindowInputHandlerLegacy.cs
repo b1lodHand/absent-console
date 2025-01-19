@@ -9,7 +9,7 @@ namespace com.absence.consolesystem
     /// old input system.)
     /// </summary>
     [AddComponentMenu("absencee_/absent-console/Console Window Input Handler (Legacy)")]
-    public class ConsoleWindowInputHandler_Legacy : ConsoleWindowInputHandlerBase
+    public class ConsoleWindowInputHandlerLegacy : ConsoleWindowInputHandlerBase
     {
         [SerializeField, Space(10)] private KeyCode m_keyToOpen = KeyCode.Tab;
 

@@ -14,7 +14,7 @@ namespace com.absence.consolesystem
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("absencee_/absent-console/Console Window Input Handler (New)")]
-    public class ConsoleWindowInputHandler_New : ConsoleWindowInputHandlerBase
+    public class ConsoleWindowInputHandlerNew : ConsoleWindowInputHandlerBase
     {
         [SerializeField, Space(10)] private Key m_keyToOpen = Key.Tab;
 

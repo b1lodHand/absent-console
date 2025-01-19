@@ -8,7 +8,7 @@ namespace com.absence.consolesystem
     public static class Console
     {
         /// <summary>
-        /// Writes a message to the current console.
+        /// Writes a message to <see cref="ConsoleWindow.Instance"/>.
         /// </summary>
         /// <param name="message">Message to write.</param>
         /// <param name="extraLineBreak">>If true, an extra vertical space (\n) is added to the end of the message written.</param>
@@ -18,7 +18,7 @@ namespace com.absence.consolesystem
         }
 
         /// <summary>
-        /// Writes a warning to the current console.
+        /// Writes a warning to <see cref="ConsoleWindow.Instance"/>.
         /// </summary>
         /// <param name="message">Warning to write.</param>
         /// <param name="extraLineBreak">>If true, an extra vertical space (\n) is added to the end of the message written.</param>
@@ -28,7 +28,7 @@ namespace com.absence.consolesystem
         }
 
         /// <summary>
-        /// Writes an error to the current console.
+        /// Writes an error to <see cref="ConsoleWindow.Instance"/>.
         /// </summary>
         /// <param name="message">Error to write.</param>
         /// <param name="extraLineBreak">>If true, an extra vertical space (\n) is added to the end of the message written.</param>
@@ -38,20 +38,20 @@ namespace com.absence.consolesystem
         }
 
         /// <summary>
-        /// Opens the current console window in the scene, if there is one.
+        /// Opens <see cref="ConsoleWindow.Instance"/>.
         /// </summary>
-        public static void OpenIfExists()
+        public static void Open()
         {
-            if (ConsoleWindow.Instance != null) ConsoleWindow.Instance.OpenWindow();
+            ConsoleWindow.Instance.OpenWindow();
         }
 
         /// <summary>
-        /// Closes the current console window in the scene, if there is one.
+        /// Closes <see cref="ConsoleWindow.Instance"/>.
         /// </summary>
-        /// <param name="clearInputField"></param>
-        public static void CloseIfExists(bool clearInputField)
+        /// <param name="clearInputField">If true, input field gets cleared upon the closing process.</param>
+        public static void Close(bool clearInputField)
         {
-            if (ConsoleWindow.Instance != null) ConsoleWindow.Instance.CloseWindow(clearInputField);
+            ConsoleWindow.Instance.CloseWindow(clearInputField);
         }
     }
 }
