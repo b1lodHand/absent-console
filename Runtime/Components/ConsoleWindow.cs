@@ -18,6 +18,17 @@ namespace com.absence.consolesystem
     public class ConsoleWindow : MonoBehaviour
     {
         /// <summary>
+        /// The enum used for determining size of the log text.
+        /// </summary>
+        public enum TextSize
+        {
+            Small,
+            Medium,
+            Big,
+            Custom,
+        }
+
+        /// <summary>
         /// Use only inside a function marked with the <see cref="CommandAttribute"/>. 
         /// Returns the console window invoked the current command.
         /// Returns null if the control is not inside a command function.
@@ -28,6 +39,10 @@ namespace com.absence.consolesystem
         private static ConsoleWindow m_instance;
         public static ConsoleWindow Instance => m_instance;
         #endregion
+
+        const int k_smallTextSize = 18;
+        const int k_mediumTextSize = 24;
+        const int k_bigTextSize = 30;
 
         [SerializeField, Tooltip("Profile of this window.")] 
         private ConsoleProfile m_profile;
@@ -41,8 +56,11 @@ namespace com.absence.consolesystem
 
         [Header("UI")]
 
-        [SerializeField, Tooltip("Panel of this window. Used for open/close events.")] 
-        private GameObject m_panel;
+        [SerializeField, Tooltip("Input panel of this window. Used for open/close events.")] 
+        private GameObject m_inputPanel;
+
+        [SerializeField, Tooltip("Log panel of this window. Used for open/close events. This field is <b>optional</b>.")]
+        private GameObject m_logPanel;
 
         [SerializeField, Tooltip("Input field of this window. Used for user interactions.")] 
         private InputField m_inputField;
@@ -57,16 +75,27 @@ namespace com.absence.consolesystem
 
         [Header("Utilities")]
 
-        [SerializeField, Tooltip("If true, all command equality checks performed by this window will be case sensitive.")] 
-        private bool m_caseSensitive = false;
+        [SerializeField, Tooltip("Use this dropdown to determine text size of the log. Set to 'Custom' if you'll manually set the text size.")]
+        private TextSize m_logTextSize = TextSize.Medium;
 
-        public bool IsCaseSensitive => m_caseSensitive;
+        [Space(10)]
 
-        [SerializeField, Tooltip("If true, this window tries to move the most parent object in its local hierarchy to the DontDestroyOnLoad scene on its initialization.")] 
-        private bool m_dontDestroyOnLoad = true;
+        [Header("Settings")]
 
         [SerializeField, Tooltip("If true, at the start of the scene it's in, this window will try to be the ConsoleWindow.Instance. If it fails, it will destroy itself.")]
         private bool m_singleton = true;
+
+        [SerializeField, Tooltip("If true, this window tries to move the most parent object in its local hierarchy to the DontDestroyOnLoad scene on its initialization.")]
+        private bool m_dontDestroyOnLoad = true;
+
+        [SerializeField, Tooltip("If true, all command equality checks performed by this window will be case sensitive.")] 
+        private bool m_caseSensitive = false;
+
+        [SerializeField, Tooltip("If true, this window will get closed when you press return key to submit a command.")]
+        private bool m_closeWindowOnPush = true;
+
+        [SerializeField, Tooltip("If false, this window won't display a log.")]
+        private bool m_displayLog = true;
 
         /// <summary>
         /// Action which gets invoked when this window opens.
@@ -78,14 +107,19 @@ namespace com.absence.consolesystem
         /// </summary>
         public event Action OnClose = null;
 
-        private bool m_open = false;
         public bool IsOpen => m_open;
+        public bool IsCaseSensitive => m_caseSensitive;
+        public bool IsSingleton => m_singleton;
+        public bool IsDontDestroyOnLoad => m_dontDestroyOnLoad;
+        public bool DisplaysLog => m_displayLog;
+        public bool ClosesWindowOnPush => m_closeWindowOnPush;
 
-        private string m_currentCommand;
-        private string m_lastCommandInvoked;
+        bool m_open = false;
+        string m_currentCommand;
+        string m_lastCommandInvoked;
 
 #if UNITY_EDITOR
-        public bool e_showPreview { get; set; } = true;
+        internal bool e_showPreview { get; set; } = true;
 #endif
 
         private void Awake()
@@ -118,6 +152,9 @@ namespace com.absence.consolesystem
                 DontDestroyOnLoad(dontDestroyOnLoadTarget.gameObject);
             }
 
+            if (m_logText != null)
+                m_logText.fontSize = GetTextSize();
+
             CloseWindow(true);
             FetchCommands();
         }
@@ -143,6 +180,16 @@ namespace com.absence.consolesystem
 
             Canvas.ForceUpdateCanvases();
             if (m_scrollRect != null) m_scrollRect.verticalNormalizedPosition = 0f;
+        }
+
+        /// <summary>
+        /// Clears the log text of this window.
+        /// </summary>
+        public void Clear()
+        {
+            if (m_logText == null) return;
+
+            m_logText.text = "";
         }
 
         /// <summary>
@@ -200,9 +247,12 @@ namespace com.absence.consolesystem
 
             m_open = true;
 
-            m_panel.SetActive(true);
+            m_inputPanel.SetActive(true);
+            if (m_displayLog && m_logPanel != null) m_logPanel.SetActive(true);
 
-            SelectInputField();
+            if (m_closeWindowOnPush) StartCoroutine(C_ClearInputField());
+            else SelectInputField();
+
             OnOpen?.Invoke();
         }
         /// <summary>
@@ -219,7 +269,9 @@ namespace com.absence.consolesystem
             if (clearInputField) ClearInputField();
             EventSystem.current.SetSelectedGameObject(null);
 
-            m_panel.SetActive(false);
+            m_inputPanel.SetActive(false);
+            if (m_logPanel != null) m_logPanel.SetActive(false);
+
             OnClose?.Invoke();
         }
         /// <summary>
@@ -257,17 +309,19 @@ namespace com.absence.consolesystem
             if (!TryParseInput(m_currentCommand, out Command command, out object[] args))
             {
                 m_currentCommand = string.Empty;
-                StartCoroutine(C_ClearInputField());
+                if (m_closeWindowOnPush) CloseWindow(true);
+                else StartCoroutine(C_ClearInputField());
                 return;
             }
 
             if (!ConsoleUtility.InvokeCommand(this, command, args))
             {
-                Console.LogError("Something went wrong while invoking the command.");
+                LogError("Something went wrong while invoking the command.");
             }
 
             m_currentCommand = string.Empty;
-            StartCoroutine(C_ClearInputField());
+            if (m_closeWindowOnPush) CloseWindow(true);
+            else StartCoroutine(C_ClearInputField());
         }
         /// <summary>
         /// Sets input field's value to the last entered command whether it was valid or not.
@@ -283,16 +337,30 @@ namespace com.absence.consolesystem
 
         #endregion
 
-        private void FetchCommands()
+        int GetTextSize()
         {
-            Console.Log("Initializing console...", false);
+            switch (m_logTextSize)
+            {
+                case TextSize.Small:
+                    return k_smallTextSize;
+                case TextSize.Medium:
+                    return k_mediumTextSize;
+                case TextSize.Big:
+                    return k_bigTextSize;
+                default:
+                    return m_logText.fontSize;
+            }
+        }
+        void FetchCommands()
+        {
+            Log("Initializing console...", false);
 
             m_commands = new(m_profile.Commands);
 
-            Console.Log("Done.", false);
-            Console.LogWarning($"There are {m_commands.Count} commands found in the build.");
+            Log("Done.", false);
+            LogWarning($"There are {m_commands.Count} commands found in the build.");
         }
-        private bool TryParseInput(string commandInput, out Command foundCommand, out object[] refinedArgs)
+        bool TryParseInput(string commandInput, out Command foundCommand, out object[] refinedArgs)
         {
             commandInput = commandInput.Trim();
 
@@ -301,19 +369,19 @@ namespace com.absence.consolesystem
 
             if (m_commands.Count == 0)
             {
-                Console.LogError("There are no commands to filter in the build.");
+                LogError("There are no commands to filter in the build.");
                 return false;
             }
             if (string.IsNullOrWhiteSpace(commandInput))
             {
-                Console.LogError("Command input cannot be empty!");
+                LogError("Command input cannot be empty!");
                 return false;
             }
 
-            string[] pieces = commandInput.Split(null);
+            string[] pieces = commandInput.Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
             if (pieces.Length == 0)
             {
-                Console.LogError($"There is something wrong with the command input: '{commandInput}'");
+                LogError($"There is something wrong with the command input: '{commandInput}'");
                 return false;
             }
 
@@ -323,7 +391,7 @@ namespace com.absence.consolesystem
 
             if (commandsWithSameKeyword.Count == 0)
             {
-                Console.LogError($"Command keyword couldn't found: {keyword}");
+                LogError($"Command keyword couldn't found: {keyword}");
                 return false;
             }
 
@@ -332,14 +400,14 @@ namespace com.absence.consolesystem
 
             if (commandsWithMatchingArgCount.Count == 0)
             {
-                Console.LogError($"There are no '{keyword}' command overloads with {argCount} arguments in the build.");
+                LogError($"There are no '{keyword}' command overloads with {argCount} arguments in the build.");
                 return false;
             }
             if (argCount == 0)
             {
                 if (commandsWithMatchingArgCount.Count > 1)
                 {
-                    Console.LogError("There are more than one commands with the same attributes. Check your Command Window's inspector.");
+                    LogError("There are more than one commands with the same attributes. Check your Command Window's inspector.");
                     return false;
                 }
 
@@ -355,7 +423,7 @@ namespace com.absence.consolesystem
                 rawArgs[i] = pieces[i + 1];
             }
 
-            List<Command> finalFiltering = commandsWithMatchingArgCount.Where(command =>
+            List<Command> softFiltering = commandsWithMatchingArgCount.Where(command =>
             {
                 object[] compArgs = new object[argCount];
 
@@ -363,9 +431,11 @@ namespace com.absence.consolesystem
                 for (int i = 0; i < command.Arguments.Count; i++)
                 {
                     Argument argument = command.Arguments[i];
+                    Argument.ArgumentValueType argValueType = argument.ValueType;
                     string argumentInput = rawArgs[i];
 
-                    if (!ConsoleUtility.IsValidArgumentInput(argument.ValueType, argumentInput, keyword, out object parsedValue)) result = false;
+                    if (!ConsoleUtility.IsValidArgumentInput(this, argValueType, argumentInput, ConsoleUtility.ArgumentValidityCheckMode.Soft, out object parsedValue))
+                        result = false;
 
                     compArgs[i] = parsedValue;
                 }
@@ -374,23 +444,58 @@ namespace com.absence.consolesystem
                 return result;
             }).ToList();
 
-            if (finalFiltering.Count == 0)
+            if (softFiltering.Count == 0)
             {
-                Console.LogError("One of your arguments' type is wrong.");
-                return false;
-            }
-            if (finalFiltering.Count > 1)
-            {
-                Console.LogError("There are more than one commands associated with your input in the build. Check your ConsoleWindow's inspector.");
+                LogError("One of your arguments' type is wrong.");
                 return false;
             }
 
-            foundCommand = finalFiltering.FirstOrDefault();
-            refinedArgs = parsedArgs;
-            return true;
+            if (softFiltering.Count == 1)
+            {
+                foundCommand = softFiltering.FirstOrDefault();
+                refinedArgs = parsedArgs;
+                return true;
+            }
+
+            List<Command> hardFiltering = softFiltering.Where(command =>
+            {
+                object[] compArgs = new object[argCount];
+
+                bool result = true;
+                for (int i = 0; i < command.Arguments.Count; i++)
+                {
+                    Argument argument = command.Arguments[i];
+                    Argument.ArgumentValueType argValueType = argument.ValueType;
+                    string argumentInput = rawArgs[i];
+
+                    if (!ConsoleUtility.IsValidArgumentInput(this, argValueType, argumentInput, ConsoleUtility.ArgumentValidityCheckMode.Hard, out object parsedValue))
+                        result = false;
+
+                    compArgs[i] = parsedValue;
+                }
+
+                if (result) parsedArgs = compArgs;
+                return result;
+            }).ToList();
+
+            if (hardFiltering.Count == 0)
+            {
+                LogError("One of your arguments' type is wrong.");
+                return false;
+            }
+
+            if (hardFiltering.Count == 1)
+            {
+                foundCommand = softFiltering.FirstOrDefault();
+                refinedArgs = parsedArgs;
+                return true;
+            }
+
+            LogError("There are more than one commands associated with your input in the build. Check your ConsoleWindow's inspector.");
+            return false;
         }
 
-        private IEnumerator C_ClearInputField()
+        IEnumerator C_ClearInputField()
         {
             EventSystem.current.SetSelectedGameObject(null);
 
@@ -399,7 +504,7 @@ namespace com.absence.consolesystem
             m_inputField.text = string.Empty;
             SelectInputField();
         }
-        private IEnumerator C_DisableHighlight()
+        IEnumerator C_DisableHighlight()
         {
             Color originalTextColor = m_inputField.selectionColor;
             originalTextColor.a = 0f;
@@ -413,6 +518,5 @@ namespace com.absence.consolesystem
             originalTextColor.a = 1f;
             m_inputField.selectionColor = originalTextColor;
         }
-
     }
 }

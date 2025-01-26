@@ -11,11 +11,10 @@ namespace com.absence.consolesystem.internals
         public enum ArgumentValueType
         {
             Integer = 0,
-            FloatingPoint = 1,
+            Float = 1,
             String = 2,
             Boolean = 4,
             [InspectorName("On|Off")] OnOff = 5,
-            Custom = 6,
         }
 
         [SerializeField] private string m_name = "null";

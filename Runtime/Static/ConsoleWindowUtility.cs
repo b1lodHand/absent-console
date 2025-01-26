@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 
 namespace com.absence.consolesystem.internals
@@ -11,7 +12,16 @@ namespace com.absence.consolesystem.internals
         const string k_integerParamColor = "#afff99";
         const string k_floatParamColor = "#ffff80";
         const string k_stringParamColor = "#80ffff";
-        const string k_customParamColor = "#ff99e6";
+        //const string k_customParamColor = "#ff99e6";
+
+        public static readonly Dictionary<Argument.ArgumentValueType, string> ColorTags = new()
+        {
+            { Argument.ArgumentValueType.Integer, k_integerParamColor },
+            { Argument.ArgumentValueType.Float, k_floatParamColor },
+            { Argument.ArgumentValueType.String, k_stringParamColor },
+            { Argument.ArgumentValueType.Boolean, k_boolParamColor },
+            { Argument.ArgumentValueType.OnOff, k_boolParamColor },
+        };
 
         const string k_white = "#ffffff";
 
@@ -91,6 +101,26 @@ namespace com.absence.consolesystem.internals
         }
 
         /// <summary>
+        /// Use to generate a helper for argument type colors  in a text.
+        /// </summary>
+        /// <returns>Returns the generated helper text.</returns>
+        public static string GenerateArgumentColorHelper()
+        {
+            StringBuilder sb = new();
+
+            foreach (var kvp in ConsoleWindowUtility.ColorTags)
+            {
+                sb.Append("<b>");
+                sb.Append(ConsoleWindowUtility.WrapWithColorTag("[]", kvp.Value));
+                sb.Append("</b> ");
+                sb.Append(kvp.Key.ToString());
+                sb.Append(", ");
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// Use to wrap a string with XML color tags, specifying the color.
         /// </summary>
         /// <param name="messageToWrap">Message to wrap.</param>
@@ -113,26 +143,7 @@ namespace com.absence.consolesystem.internals
         /// <returns>Returns the hex code found.</returns>
         private static string GetColorTag(Argument.ArgumentValueType valueType)
         {
-            switch (valueType)
-            {
-                case Argument.ArgumentValueType.Integer:
-                    return k_integerParamColor;
-
-                case Argument.ArgumentValueType.FloatingPoint:
-                    return k_floatParamColor;
-
-                case Argument.ArgumentValueType.String:
-                    return k_stringParamColor;
-
-                case Argument.ArgumentValueType.Boolean:
-                    return k_boolParamColor;
-
-                case Argument.ArgumentValueType.OnOff:
-                    return k_boolParamColor;
-
-                default:
-                    return k_customParamColor;
-            }
+            return ColorTags[valueType];
         }
     }
 

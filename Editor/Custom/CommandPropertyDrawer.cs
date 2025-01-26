@@ -58,14 +58,14 @@ namespace com.absence.consolesystem.editor
             if (Application.isPlaying) GUI.enabled = false;
 
             string keyword = keywordProp.stringValue;
-            keyword = EditorGUI.TextField(position, "Keyword: ", keyword);
+            keyword = EditorGUI.TextField(position, "Keyword ", keyword);
             keywordProp.stringValue = keyword;
 
             position.y += EditorGUIUtility.singleLineHeight;
             position.y += k_verticalSpacing;
 
             string description = descriptionProp.stringValue;
-            description = EditorGUI.TextField(position, "Description: ", description);
+            description = EditorGUI.TextField(position, "Description ", description);
             descriptionProp.stringValue = description;
 
             position.y += EditorGUIUtility.singleLineHeight;
@@ -90,7 +90,7 @@ namespace com.absence.consolesystem.editor
 
                 if (suitableMethods.Count == 0)
                 {
-                    EditorGUI.Popup(position, "Method to Invoke: ", 0, new string[] { "There are no suitable methods for this command. " });
+                    EditorGUI.Popup(position, "Method to Invoke ", 0, new string[] { "There are no suitable methods for this command. " });
                     methodPreviewProp.stringValue = "";
                     return;
                 }
@@ -102,7 +102,7 @@ namespace com.absence.consolesystem.editor
 
                 if (suitablePreviews.Contains(selectedMethodPreview)) methodIndex = suitablePreviews.IndexOf(selectedMethodPreview);
 
-                methodIndex = EditorGUI.Popup(position, "Method to Invoke: ", methodIndex, suitablePreviews.ToArray());
+                methodIndex = EditorGUI.Popup(position, "Method to Invoke ", methodIndex, suitablePreviews.ToArray());
                 selectedMethodPreview = suitablePreviews[methodIndex];
 
                 methodPreviewProp.stringValue = selectedMethodPreview;

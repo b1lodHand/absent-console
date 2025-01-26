@@ -1,4 +1,3 @@
-using com.absence.consolesystem.internals;
 using UnityEditor;
 using UnityEngine;
 using ConsoleWindowUtility = com.absence.consolesystem.internals.ConsoleWindowUtility;
@@ -50,6 +49,8 @@ namespace com.absence.consolesystem.editor
             });
 
             EditorGUI.indentLevel--;
+
+            ConsoleSystemEditorHelpers.DrawArgumentColorGuideGUILayout(10f);
         }
     }
 

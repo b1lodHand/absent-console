@@ -9,7 +9,7 @@ namespace com.absence.consolesystem.internals
     public static class ConsoleDefaultCommands
     {
         [Command]
-        public static void no_methods_selected()
+        internal static void no_methods_selected()
         {
             ConsoleWindow.Sender.Log("There are no methods selected for this command. ");
         }
@@ -17,7 +17,7 @@ namespace com.absence.consolesystem.internals
         [Command]
         static void Help()
         {
-            List<Command> commandsAvailable = ConsoleWindow.Instance.Profile.Commands;
+            List<Command> commandsAvailable = ConsoleWindow.Sender.Profile.Commands;
 
             StringBuilder sb = new();
 
@@ -29,6 +29,9 @@ namespace com.absence.consolesystem.internals
                 sb.Append(Help_GenerateDesciption(command));
             });
 
+            sb.Append("\n\n");
+            sb.Append(ConsoleWindowUtility.GenerateArgumentColorHelper());
+
             ConsoleWindow.Sender.Log(sb.ToString());
         }
 
@@ -36,11 +39,11 @@ namespace com.absence.consolesystem.internals
         static void Help(string commandName)
         {
             commandName = commandName.Trim();
-            List<Command> commandsFound = ConsoleWindow.Instance.GetCommandsWithTheKeyword(commandName);
+            List<Command> commandsFound = ConsoleWindow.Sender.GetCommandsWithTheKeyword(commandName);
 
             if (commandsFound.Count == 0)
             {
-                Console.LogError("No commands with the specified keyword found in the build.");
+                ConsoleWindow.Sender.LogError("No commands with the specified keyword found in the build.");
                 return;
             }
 
@@ -54,7 +57,16 @@ namespace com.absence.consolesystem.internals
                 sb.Append(Help_GenerateDesciption(command));
             });
 
+            sb.Append("\n\n");
+            sb.Append(ConsoleWindowUtility.GenerateArgumentColorHelper());
+
             ConsoleWindow.Sender.Log(sb.ToString());
+        }
+
+        [Command]
+        static void Clear()
+        {
+            ConsoleWindow.Sender.Clear();
         }
 
         static string Help_GenerateDesciption(Command command)

@@ -22,6 +22,11 @@ MonoBehaviour:
     m_arguments:
     - m_name: command_name
       m_valueType: 2
-    m_description: Shows the description for the command wanted.
+    m_description: Displays info about a specified command.
     m_methodPreview: Help(String commandName)
+    m_isExpanded: 0
+  - m_keyword: clear
+    m_arguments: []
+    m_description: Clears the log.
+    m_methodPreview: Clear()
     m_isExpanded: 0

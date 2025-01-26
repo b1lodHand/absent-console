@@ -16,15 +16,17 @@ namespace com.absence.consolesystem.internals
         public const bool DEBUG_MODE = false;
 
         const string DEFAULT_METHOD_NAME = nameof(ConsoleDefaultCommands.no_methods_selected);
-        static MethodInfo DefaultMethod => MethodsInBuild.Where(method => method.Name == DEFAULT_METHOD_NAME).FirstOrDefault();
+        public static MethodInfo DefaultMethod {  get; private set; }
 
         const BindingFlags METHOD_FLAGS = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
 
-        private static List<MethodInfo> m_methodsInBuild;
-        private static List<string> m_methodPreviews;
+        static List<MethodInfo> s_methodsInBuild;
+        static List<string> s_methodPreviews;
+        static Dictionary<string, MethodInfo> s_reversedPreviewPairs;
 
-        public static List<MethodInfo> MethodsInBuild => m_methodsInBuild;
-        public static List<string> PreviewsOfMethodsInBuild => m_methodPreviews;
+        public static List<MethodInfo> MethodsInBuild => s_methodsInBuild;
+        public static List<string> PreviewsOfMethodsInBuild => s_methodPreviews;
+        public static Dictionary<string, MethodInfo> ReversedPreviewPairs => s_reversedPreviewPairs;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
         static void RefreshMethods_Auto()
@@ -42,8 +44,9 @@ namespace com.absence.consolesystem.internals
         /// <param name="debugMode">If true, result will be printed into Unity's console.</param>
         public static void RefreshMethods(bool debugMode = false)
         {
-            m_methodsInBuild = new();
-            m_methodPreviews = new();
+            s_methodsInBuild = new();
+            s_methodPreviews = new();
+            s_reversedPreviewPairs = new();
 
             List<Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             List<Type> allTypes = new();
@@ -67,8 +70,13 @@ namespace com.absence.consolesystem.internals
 
             if (temp.Count == 0) return;
 
-            m_methodsInBuild = new(temp);
-            m_methodPreviews = temp.ConvertAll(method => GenerateMethodPreview(method));
+            s_methodsInBuild = temp;
+
+            s_methodsInBuild.ForEach(method =>
+            {
+                if (method.Name.Equals(DEFAULT_METHOD_NAME)) DefaultMethod = method; 
+                s_methodPreviews.Add(GenerateMethodPreview(method));
+            });
 
             if (!debugMode) return;
 
@@ -85,7 +93,7 @@ namespace com.absence.consolesystem.internals
 
             debugMessage.Append("<b>[CONSOLE] Methods loaded:</b> ");
 
-            m_methodPreviews.ForEach(methodPreview =>
+            s_methodPreviews.ForEach(methodPreview =>
             {
                 debugMessage.Append("\n\t");
                 debugMessage.Append("-> ");
@@ -121,8 +129,12 @@ namespace com.absence.consolesystem.internals
             });
 
             sb.Append(")");
+            string preview = sb.ToString();
 
-            return sb.ToString();
+            if (!s_reversedPreviewPairs.ContainsKey(preview))
+                s_reversedPreviewPairs.Add(preview, method);
+
+            return preview;
         }
 
         /// <summary>
@@ -182,7 +194,7 @@ namespace com.absence.consolesystem.internals
                 case TypeCode.Decimal:
                 case TypeCode.Double:
                 case TypeCode.Single:
-                    return (originalValueType == Argument.ArgumentValueType.FloatingPoint);
+                    return (originalValueType == Argument.ArgumentValueType.Float);
 
                 case TypeCode.Boolean:
                     return ((originalValueType == Argument.ArgumentValueType.Boolean) || (originalValueType == Argument.ArgumentValueType.OnOff));
@@ -191,7 +203,8 @@ namespace com.absence.consolesystem.internals
                     return (originalValueType == Argument.ArgumentValueType.String);
 
                 default:
-                    return (originalValueType == Argument.ArgumentValueType.Custom);
+                    //return (originalValueType == Argument.ArgumentValueType.Custom);
+                    return false;
             }
         }
     }

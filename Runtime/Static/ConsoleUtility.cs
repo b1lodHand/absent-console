@@ -1,4 +1,6 @@
+using System;
 using System.Reflection;
+using UnityEngine;
 
 namespace com.absence.consolesystem.internals
 {
@@ -7,10 +9,14 @@ namespace com.absence.consolesystem.internals
     /// </summary>
     public static class ConsoleUtility
     {
+        public enum ArgumentValidityCheckMode
+        {
+            Soft = 0,
+            Hard = 1,
+        }
+
         public const string INPUT_ON_LC = "on";
         public const string INPUT_OFF_LC = "off";
-        
-        public static readonly char[] STRING_WRAPPER_CHARS = {'\'', '\"', '`'};
 
         /// <summary>
         /// Use to invoke a command.
@@ -28,16 +34,19 @@ namespace com.absence.consolesystem.internals
             {
                 ConsoleWindow.Sender = sender;
 
-                MethodInfo targetMethod = ConsoleEventDatabase.MethodsInBuild[ConsoleEventDatabase.PreviewsOfMethodsInBuild.IndexOf(methodPreview)];
-                if (command.Arguments.Count > 0) targetMethod.Invoke(null, args);
-                else targetMethod.Invoke(null, null);
+                MethodInfo targetMethod = ConsoleEventDatabase.ReversedPreviewPairs[methodPreview];
+                if (command.Arguments.Count > 0 && (!targetMethod.Equals(ConsoleEventDatabase.DefaultMethod)))
+                    targetMethod.Invoke(null, args);
+                else 
+                    targetMethod.Invoke(null, null);
 
                 ConsoleWindow.Sender = null;
                 return true;
             }
 
-            catch
+            catch (Exception e)
             {
+                Debug.LogException(e);
                 ConsoleWindow.Sender = null;
                 return false;
             }
@@ -51,10 +60,56 @@ namespace com.absence.consolesystem.internals
         /// <param name="forKeyword">Keyword to limit the scope of the check.</param>
         /// <param name="parsedValue">Output of the parsed value of the argument.</param>
         /// <returns></returns>
-        public static bool IsValidArgumentInput(Argument.ArgumentValueType originalValueType, string argInput, string forKeyword, out object parsedValue)
+        public static bool IsValidArgumentInput(ConsoleWindow sender, Argument.ArgumentValueType originalValueType, string argInput, ArgumentValidityCheckMode checkMode, out object parsedValue)
         {
+            argInput = argInput.Trim();
+
             parsedValue = null;
             bool result = false;
+
+            if (checkMode == ArgumentValidityCheckMode.Hard)
+            {
+                string casedInput = argInput.ToLower();
+
+                bool canBeInt = int.TryParse(argInput, out int intValue);
+                bool canBeFloat = float.TryParse(argInput, out float floatValue);
+                bool canBeBoolean = bool.TryParse(argInput, out bool boolValue);
+                bool canBeOnOff = ((casedInput == INPUT_ON_LC) || (casedInput == INPUT_OFF_LC));
+                bool onOffValue = (casedInput == INPUT_ON_LC);
+
+                if (originalValueType == Argument.ArgumentValueType.String)
+                {
+                    result = !(canBeInt || canBeFloat || canBeBoolean || canBeOnOff);
+                    if (result) parsedValue = argInput;
+                }
+
+                else if (originalValueType == Argument.ArgumentValueType.Float)
+                {
+                    result = canBeFloat && !canBeInt;
+                    if (result) parsedValue = floatValue;
+                }
+
+                else if (originalValueType == Argument.ArgumentValueType.Integer)
+                {
+                    result = canBeInt;
+                    if (result) parsedValue = intValue;
+                }
+
+                else if (originalValueType == Argument.ArgumentValueType.Boolean)
+                {
+                    result = canBeBoolean;
+                    if (result) parsedValue = boolValue;
+                }
+
+                else if (originalValueType == Argument.ArgumentValueType.OnOff)
+                {
+                    result = canBeOnOff;
+                    if (result) parsedValue = onOffValue;
+                }
+
+                return result;
+            }
+
             switch (originalValueType)
             {
                 case Argument.ArgumentValueType.Integer:
@@ -62,7 +117,7 @@ namespace com.absence.consolesystem.internals
                     if (result) parsedValue = intVal;
                     break;
 
-                case Argument.ArgumentValueType.FloatingPoint:
+                case Argument.ArgumentValueType.Float:
                     result = float.TryParse(argInput, out float floatVal);
                     if (result) parsedValue = floatVal;
                     break;
@@ -73,58 +128,24 @@ namespace com.absence.consolesystem.internals
                     break;
 
                 case Argument.ArgumentValueType.String:
-                    result = TryParseStringInput(argInput, out string stringVal);
-                    if (result) parsedValue = stringVal;
+                    result = true;
+                    if (result) parsedValue = argInput;
                     break;
 
                 case Argument.ArgumentValueType.OnOff:
-                    string casedInput = argInput.Trim().ToLower();
+                    string casedInput = argInput.ToLower();
                     result = ((casedInput == INPUT_ON_LC) || (casedInput == INPUT_OFF_LC));
                     if (result) parsedValue = (casedInput == INPUT_ON_LC);
-                    break;
-
-                case Argument.ArgumentValueType.Custom:
-                    result = TryParseCustomInput(argInput, forKeyword, out object customVal);
-                    if (result) parsedValue = customVal;
                     break;
 
                 default:
                     parsedValue = null;
                     result = false;
-                    Console.LogError("Something gone wrong parsing the input");
+                    sender.LogError("Something went wrong parsing the input");
                     break;
             }
 
             return result;
-        }
-
-        static bool TryParseStringInput(string input, out string parsedString)
-        {
-            input = input.Trim();
-
-            bool result = false;
-            char targetChar = ' ';
-            for (int i = 0; i < STRING_WRAPPER_CHARS.Length; i++)
-            {
-                char current = STRING_WRAPPER_CHARS[i];
-                if (input.StartsWith(current) && input.EndsWith(current))
-                {
-                    result = true;
-                    targetChar = current;
-                }
-            }
-
-            parsedString = input.Trim(targetChar);
-
-            return result;
-        }
-        static bool TryParseCustomInput(string argInput, string forKeyword, out object parsedValue)
-        {
-            // Override to have custom logic.
-            Console.LogError("You haven't implemented any logic for custom arguments.");
-
-            parsedValue = null;
-            return false;
         }
     }
 

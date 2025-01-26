@@ -313,7 +313,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2195319409784965250
 RectTransform:
   m_ObjectHideFlags: 0
@@ -671,11 +671,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_profile: {fileID: 11400000, guid: dc83b24399490424bb118323771b50c0, type: 2}
-  m_caseSensitive: 0
-  m_panel: {fileID: 7575736089648365184}
+  m_inputPanel: {fileID: 1785184069233384674}
+  m_logPanel: {fileID: 8179400559309083046}
   m_inputField: {fileID: 7578305880161114639}
   m_logText: {fileID: 7689138798927779173}
   m_scrollRect: {fileID: 8238334328880572521}
+  m_singleton: 1
+  m_dontDestroyOnLoad: 1
+  m_caseSensitive: 0
+  m_closeWindowOnPush: 0
+  m_displayLog: 1
 --- !u!114 &7279608864738248034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -688,6 +693,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0f0a850e9439864e846ca81ce9f587c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_selectionType: 1
+  m_targetConsoleWindow: {fileID: 7184849850788818632}
   m_keyToOpen: 9
 --- !u!1 &5103092477955796214
 GameObject:
@@ -725,7 +732,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1864, y: 30.372036}
+  m_SizeDelta: {x: 1864, y: 30.613628}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &5651673010036761039
 CanvasRenderer:
@@ -1150,7 +1157,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1046038297934671643
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1252,7 +1259,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3241535214678963199
 RectTransform:
   m_ObjectHideFlags: 0

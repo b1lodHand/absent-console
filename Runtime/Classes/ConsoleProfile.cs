@@ -11,7 +11,6 @@ namespace com.absence.consolesystem
     public class ConsoleProfile : ScriptableObject
     {
         [SerializeField] private List<Command> m_commands = new();
-
         public List<Command> Commands => m_commands;      
     }
 
